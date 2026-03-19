@@ -1336,14 +1336,22 @@ cat ~/.ssh/id_ed25519.pub | pbcopy</code></pre>
 <span class="cmd">git pull</span> origin develop</code></pre>
 
   <h3>② 내 브랜치 만들기 / 이동하기</h3>
-  <pre><code><span class="comment"># 새 기능 브랜치 만들기 (처음 한 번만)</span>
+  <pre><code><span class="comment"># 방법 A: 브랜치 전환 (기본 방식)</span>
 <span class="cmd">git checkout</span> <span class="flag">-b</span> feature/model-training
 
-<span class="comment"># 이미 만든 브랜치로 이동</span>
-<span class="cmd">git checkout</span> feature/model-training
+<span class="comment"># 방법 B: Worktree로 별도 폴더에서 작업 (추천!)</span>
+<span class="cmd">git worktree add</span> <span class="flag">-b</span> feature/model-training ../프로젝트-model-training
+<span class="cmd">cd</span> ../프로젝트-model-training
+<span class="comment"># → 내 작업을 별도 폴더에서 진행. 브랜치 전환 없이 폴더 이동만!</span>
+<span class="comment"># → 여러 작업을 동시에 진행할 수 있음</span>
 
 <span class="comment"># develop의 최신 내용을 내 브랜치에 반영</span>
 <span class="cmd">git merge</span> develop</code></pre>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div><strong>Git Worktree란?</strong> 하나의 저장소에서 여러 브랜치를 <strong>각각 다른 폴더로 동시에</strong> 열어두는 기능입니다. 브랜치 전환 없이 폴더만 이동하면 되고, 여러 작업을 병렬로 진행할 수 있습니다. 작업 끝나면 <code>git worktree remove ../폴더</code>로 정리합니다.</div>
+  </div>
 
   <h3>③ 작업 후 변경 사항 저장</h3>
   <pre><code><span class="comment"># 어떤 파일이 변경되었는지 확인</span>
@@ -1948,6 +1956,14 @@ echo ".env" >> .gitignore
     <div class="cheat-row"><div class="cheat-cmd">git log --oneline --graph</div><div class="cheat-desc">브랜치 그래프로 보기</div></div>
     <div class="cheat-row"><div class="cheat-cmd">git diff</div><div class="cheat-desc">변경 내용 확인</div></div>
     <div class="cheat-row"><div class="cheat-cmd">git diff --staged</div><div class="cheat-desc">스테이징된 변경 확인</div></div>
+  </div>
+
+  <div class="cheat-group">
+    <div class="cheat-group-title">📂 Worktree (여러 브랜치 동시 작업)</div>
+    <div class="cheat-row"><div class="cheat-cmd">git worktree add -b 브랜치 ../폴더</div><div class="cheat-desc">새 브랜치 + 별도 폴더 생성</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git worktree add ../폴더 브랜치</div><div class="cheat-desc">기존 브랜치를 별도 폴더로</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git worktree list</div><div class="cheat-desc">모든 worktree 목록 확인</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git worktree remove ../폴더</div><div class="cheat-desc">worktree 제거 (머지 후 정리)</div></div>
   </div>
 
   <div class="cheat-group">
