@@ -1573,26 +1573,31 @@ app = Flask(__name__)
 
     <!-- Row 3: Parallel -->
     <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:14px;padding:16px;margin:8px 0">
-      <div style="text-align:center;font-size:.78rem;font-weight:700;color:#166534;margin-bottom:10px">⚡ Phase 1 — 동시 진행 (파일 경계 분리)</div>
+      <div style="text-align:center;font-size:.78rem;font-weight:700;color:#166534;margin-bottom:10px">⚡ Phase 1 — 각자 Worktree + Claude Code (파일 경계 분리)</div>
+      <div style="text-align:center;font-size:.72rem;color:#6b7280;margin-bottom:8px"><code>git worktree add -b feature/내작업 ../프로젝트-내작업</code></div>
       <div class="flow-row" style="flex-wrap:wrap;gap:8px">
         <div class="flow-box fc" style="min-width:80px;padding:10px 14px;font-size:.8rem">
           <div style="font-size:.7rem;opacity:.7">민수</div>
           DB 모델
+          <div style="font-size:.65rem;color:#6b7280;margin-top:2px">📁 ../-db-models/</div>
         </div>
         <div class="flow-box fp" style="min-width:80px;padding:10px 14px;font-size:.8rem">
           <div style="font-size:.7rem;opacity:.7">지연</div>
           AI 서비스
+          <div style="font-size:.65rem;color:#6b7280;margin-top:2px">📁 ../-openai/</div>
         </div>
         <div class="flow-box fb" style="min-width:80px;padding:10px 14px;font-size:.8rem">
           <div style="font-size:.7rem;opacity:.7">현우</div>
           채팅 UI
+          <div style="font-size:.65rem;color:#6b7280;margin-top:2px">📁 ../-chat-ui/</div>
         </div>
         <div class="flow-box fg" style="min-width:80px;padding:10px 14px;font-size:.8rem">
           <div style="font-size:.7rem;opacity:.7">수빈</div>
           인증 UI
+          <div style="font-size:.65rem;color:#6b7280;margin-top:2px">📁 ../-auth-ui/</div>
         </div>
       </div>
-      <div style="text-align:center;font-size:.78rem;color:#6b7280;margin-top:6px">각자 PR → 리뷰 → 머지</div>
+      <div style="text-align:center;font-size:.78rem;color:#6b7280;margin-top:6px">각 worktree 폴더에서 Claude Code 실행 → PR → 머지 → <code>git worktree remove</code></div>
     </div>
     <div class="flow-arrow-down">↓</div>
 
@@ -1789,6 +1794,11 @@ app = Flask(__name__)
       <div style="font-size:2rem;margin-bottom:6px">🔒</div>
       <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">공통 파일은 직렬</div>
       <div style="font-size:.8rem;color:#6b7280">선언 → 수정 → 머지 →<br>다음 사람</div>
+    </div>
+    <div style="background:#fff7ed;border:2px solid #fdba74;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">📂</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">Worktree 활용</div>
+      <div style="font-size:.8rem;color:#6b7280">Task마다 별도 폴더<br>Claude Code 병렬 실행</div>
     </div>
   </div>
 </div>
