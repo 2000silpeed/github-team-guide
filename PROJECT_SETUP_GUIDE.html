@@ -127,8 +127,9 @@
     <a href="#s3" class="toc-item"><span class="toc-num">3</span>TASK.md 작성하기</a>
     <a href="#s4" class="toc-item"><span class="toc-num">4</span>팀원 역할 분배</a>
     <a href="#s5" class="toc-item"><span class="toc-num">5</span>Claude Code로 실행하기</a>
-    <a href="#s6" class="toc-item"><span class="toc-num">6</span>실전 예시: AI 챗봇</a>
-    <a href="#s7" class="toc-item"><span class="toc-num">7</span>체크리스트</a>
+    <a href="#s6" class="toc-item"><span class="toc-num" style="background:linear-gradient(135deg,#f59e0b,#ea580c)">6</span>Git Worktree로 병렬 작업</a>
+    <a href="#s7" class="toc-item"><span class="toc-num">7</span>실전 예시: AI 챗봇</a>
+    <a href="#s8" class="toc-item"><span class="toc-num">8</span>체크리스트</a>
   </div>
 </nav>
 
@@ -763,10 +764,334 @@ TASK.md를 만들어줘. Phase별로 나누고,
   </div>
 </section>
 
-<!-- ===== SECTION 6: 실전 예시 ===== -->
+<!-- ===== SECTION 6: Git Worktree ===== -->
 <section class="section" id="s6">
   <div class="section-header">
-    <div class="section-number">6</div>
+    <div class="section-number" style="background:linear-gradient(135deg,#f59e0b,#ea580c)">6</div>
+    <h2>Git Worktree로 병렬 작업 극대화</h2>
+  </div>
+
+  <h3>문제: git checkout의 한계</h3>
+  <p>일반적인 Git 워크플로우에서는 <strong>한 번에 하나의 브랜치</strong>에서만 작업할 수 있습니다.</p>
+
+  <div style="background:#fef2f2;border:2px solid #fecaca;border-radius:12px;padding:20px;margin:14px 0">
+    <div style="font-weight:700;color:#991b1b;margin-bottom:10px">일반 방식의 불편함</div>
+    <div style="font-size:.88rem;color:#374151;line-height:1.8">
+      1. feature/login 브랜치에서 작업 중...<br>
+      2. 팀원이 PR 리뷰 요청 → 브랜치를 바꿔야 함<br>
+      3. <code>git stash</code> → <code>git checkout feature/chat-ui</code> → 리뷰<br>
+      4. 다시 <code>git checkout feature/login</code> → <code>git stash pop</code><br>
+      5. 또 다른 Task를 Claude Code로 돌리고 싶은데... <strong>브랜치가 점유 중</strong><br><br>
+      → 브랜치 전환할 때마다 컨텍스트가 끊기고, 시간이 낭비됨
+    </div>
+  </div>
+
+  <h3>해결: Git Worktree</h3>
+  <p><strong>Git Worktree</strong>는 하나의 저장소에서 <strong>여러 브랜치를 동시에 다른 폴더로 열어두는</strong> 기능입니다.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-title">일반 방식 vs Worktree 방식</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:left">
+      <div style="background:#fef2f2;border:2px solid #fecaca;border-radius:12px;padding:18px">
+        <div style="font-weight:700;color:#991b1b;margin-bottom:10px;text-align:center">❌ 일반 방식</div>
+        <div class="ftree" style="margin:0;font-size:.72rem;padding:12px">
+<span class="ff">ai-chatbot/</span>        <span class="fcc"># 폴더 1개</span>
+└── (한 번에 1 브랜치만)
+    <span class="fcc">
+  feature/login 작업 중...
+  → 리뷰하려면 stash + checkout
+  → 다시 돌아오려면 checkout + pop
+  → 매번 컨텍스트 전환 😵</span>
+        </div>
+      </div>
+      <div style="background:#ecfdf5;border:2px solid #86efac;border-radius:12px;padding:18px">
+        <div style="font-weight:700;color:#166534;margin-bottom:10px;text-align:center">✅ Worktree 방식</div>
+        <div class="ftree" style="margin:0;font-size:.72rem;padding:12px">
+<span class="ff">ai-chatbot/</span>        <span class="fcc"># 메인 (develop)</span>
+<span class="ff">ai-chatbot-login/</span>   <span class="fcc"># feature/login</span>
+<span class="ff">ai-chatbot-review/</span>  <span class="fcc"># PR 리뷰용</span>
+<span class="fcc">
+  → 각 폴더가 독립적인 브랜치
+  → 전환 없이 폴더만 이동!
+  → 동시에 여러 작업 가능 ✨</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Worktree 기본 사용법</h3>
+
+  <h4>1. 새 Worktree 생성</h4>
+  <pre><code><span class="cm"># 기본 문법</span>
+<span class="cmd">git worktree add</span> <span class="fl">../폴더명</span> <span class="str">브랜치명</span>
+
+<span class="cm"># 예시: feature/login 브랜치를 별도 폴더로</span>
+<span class="cmd">git worktree add</span> <span class="fl">../ai-chatbot-login</span> <span class="str">feature/login</span>
+
+<span class="cm"># 새 브랜치를 만들면서 worktree 생성</span>
+<span class="cmd">git worktree add</span> <span class="fl">-b</span> feature/chat-ui <span class="fl">../ai-chatbot-chat-ui</span></code></pre>
+
+  <h4>2. Worktree 목록 확인</h4>
+  <pre><code><span class="cmd">git worktree list</span>
+<span class="out">C:/project/ai-chatbot              abc1234 [develop]</span>
+<span class="out">C:/project/ai-chatbot-login         def5678 [feature/login]</span>
+<span class="out">C:/project/ai-chatbot-chat-ui       ghi9012 [feature/chat-ui]</span></code></pre>
+
+  <h4>3. 작업 완료 후 Worktree 제거</h4>
+  <pre><code><span class="cm"># PR 머지 후 worktree 정리</span>
+<span class="cmd">git worktree remove</span> ../ai-chatbot-login</code></pre>
+
+  <h3>7인 팀 Worktree 폴더 구조</h3>
+
+  <div class="ftree">
+<span class="ff">C:/project/</span>                              <span class="fcc"># 프로젝트 루트</span>
+│
+├── <span class="ff">ai-chatbot/</span>                          <span class="fcc"># 메인 저장소 (develop 브랜치)</span>
+│   └── (모든 worktree의 원본)
+│
+├── <span class="ff">ai-chatbot-minsu-db-models/</span>          <span class="fcc"># 민수: DB 모델 작업</span>
+├── <span class="ff">ai-chatbot-jiyeon-openai/</span>            <span class="fcc"># 지연: OpenAI 서비스 작업</span>
+├── <span class="ff">ai-chatbot-hyunwoo-chat-ui/</span>          <span class="fcc"># 현우: 채팅 UI 작업</span>
+├── <span class="ff">ai-chatbot-subin-auth-ui/</span>            <span class="fcc"># 수빈: 인증 UI 작업</span>
+│
+└── <span class="ff">ai-chatbot-review/</span>                   <span class="fcc"># 공용: PR 리뷰용</span>
+  </div>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div>각 폴더가 독립된 브랜치이므로, <strong>각 폴더에서 별도의 Claude Code를 실행</strong>할 수 있습니다. 한 터미널에서 로그인 기능을 만들면서, 다른 터미널에서 동시에 채팅 UI를 만들 수 있어요!</div>
+  </div>
+
+  <h3>Claude Code + Worktree 워크플로우</h3>
+
+  <div class="diagram-box">
+    <div class="diagram-title">팀원 1명의 하루 워크플로우</div>
+
+    <div class="flow-row">
+      <div class="flow-box" style="background:#dbeafe;color:#1e40af;border:2px solid #93c5fd">
+        ① develop pull
+        <div style="font-size:.7rem;color:#6b7280;margin-top:2px">메인 폴더에서</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:#ede9fe;color:#5b21b6;border:2px solid #c4b5fd">
+        ② worktree 생성
+        <div style="font-size:.7rem;color:#6b7280;margin-top:2px">작업용 폴더 분리</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:#fef3c7;color:#92400e;border:2px solid #fde68a">
+        ③ Claude Code 실행
+        <div style="font-size:.7rem;color:#6b7280;margin-top:2px">분리된 폴더에서</div>
+      </div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:#dcfce7;color:#166534;border:2px solid #86efac">
+        ④ commit + push
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:#ecfeff;color:#155e75;border:2px solid #67e8f9">
+        ⑤ PR 생성
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:#f3f4f6;color:#374151;border:2px solid #d1d5db">
+        ⑥ 머지 후 worktree 제거
+      </div>
+    </div>
+  </div>
+
+  <h4>실제 명령어 흐름</h4>
+  <pre><code><span class="cm"># ① 메인 폴더에서 develop 최신화</span>
+<span class="cmd">cd</span> ~/project/ai-chatbot
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+
+<span class="cm"># ② 내 Task용 worktree 생성</span>
+<span class="cmd">git worktree add</span> <span class="fl">-b</span> feature/db-models <span class="fl">../ai-chatbot-db-models</span>
+
+<span class="cm"># ③ 분리된 폴더에서 Claude Code로 개발</span>
+<span class="cmd">cd</span> ../ai-chatbot-db-models
+<span class="cmd">claude</span>
+<span class="cm"># → "TASK.md에서 내 담당인 DB 모델 정의를 구현해줘"</span>
+
+<span class="cm"># ④ 개발 완료 후 커밋 + 푸시</span>
+<span class="cmd">git add</span> backend/models/
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: User, Quiz DB 모델 정의"</span>
+<span class="cmd">git push</span> origin feature/db-models
+
+<span class="cm"># ⑤ GitHub에서 PR 생성</span>
+
+<span class="cm"># ⑥ 머지 완료 후 worktree 정리</span>
+<span class="cmd">cd</span> ~/project/ai-chatbot
+<span class="cmd">git worktree remove</span> ../ai-chatbot-db-models</code></pre>
+
+  <h3>Worktree의 핵심 장점: 동시 작업</h3>
+
+  <div style="background:linear-gradient(135deg,#faf5ff,#eef2ff);border:2px solid #c4b5fd;border-radius:14px;padding:24px;margin:16px 0">
+    <div style="font-weight:800;font-size:.95rem;margin-bottom:16px;color:#5b21b6">한 명이 여러 Task를 동시에 돌리는 시나리오</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px">
+        <div style="font-size:.75rem;color:#6b7280;margin-bottom:4px">터미널 1</div>
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">📁 ai-chatbot-db-models/</div>
+        <div style="font-size:.82rem;color:#374151">Claude Code가 DB 모델 구현 중...</div>
+        <div style="margin-top:6px"><span class="badge bg-yellow">작업 중</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px">
+        <div style="font-size:.75rem;color:#6b7280;margin-bottom:4px">터미널 2</div>
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">📁 ai-chatbot-api-routes/</div>
+        <div style="font-size:.82rem;color:#374151">Claude Code가 API 라우트 구현 중...</div>
+        <div style="margin-top:6px"><span class="badge bg-yellow">작업 중</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px">
+        <div style="font-size:.75rem;color:#6b7280;margin-bottom:4px">터미널 3</div>
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">📁 ai-chatbot-review/</div>
+        <div style="font-size:.82rem;color:#374151">팀원 PR 코드 리뷰 중</div>
+        <div style="margin-top:6px"><span class="badge bg-blue">리뷰 중</span></div>
+      </div>
+    </div>
+
+    <div class="info-box info-tip" style="margin-top:14px;margin-bottom:0">
+      <span class="icon">⚡</span>
+      <div><strong>Claude Code는 작업 시간이 걸립니다.</strong> 하나가 돌아가는 동안 다른 worktree에서 다른 작업을 시작하면, <strong>대기 시간이 0</strong>이 됩니다. 3개 Task를 직렬로 하면 3시간, 워크트리로 병렬 하면 1시간!</div>
+    </div>
+  </div>
+
+  <h3>PR 리뷰도 Worktree로</h3>
+  <p>리뷰 전용 worktree를 하나 만들어두면, 내 작업을 중단하지 않고 리뷰할 수 있습니다.</p>
+
+  <pre><code><span class="cm"># 리뷰 전용 worktree (한 번만 만들면 재사용)</span>
+<span class="cmd">git worktree add</span> <span class="fl">../ai-chatbot-review</span> develop
+
+<span class="cm"># PR 리뷰할 때</span>
+<span class="cmd">cd</span> ../ai-chatbot-review
+<span class="cmd">gh pr checkout</span> 7          <span class="cm"># PR #7의 브랜치로 전환</span>
+<span class="cmd">claude</span>                     <span class="cm"># Claude Code로 리뷰</span>
+<span class="cm"># → "이 코드를 리뷰해줘"</span>
+
+<span class="cm"># 리뷰 끝나면 다시 develop으로</span>
+<span class="cmd">git checkout</span> develop
+<span class="cm"># 내 작업 폴더는 전혀 건드리지 않았음!</span></code></pre>
+
+  <h3>Worktree 주의사항</h3>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0">
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px">
+      <div style="font-size:1.3rem;margin-bottom:6px;text-align:center">🚫</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px;text-align:center">같은 브랜치 불가</div>
+      <div style="font-size:.8rem;color:#6b7280;text-align:center">두 worktree가 동일한 브랜치를 체크아웃할 수 없음</div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:16px">
+      <div style="font-size:1.3rem;margin-bottom:6px;text-align:center">🧹</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px;text-align:center">쓰고 정리하기</div>
+      <div style="font-size:.8rem;color:#6b7280;text-align:center">PR 머지 후 <code>git worktree remove</code>로 제거. 안 하면 폴더가 쌓임</div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px">
+      <div style="font-size:1.3rem;margin-bottom:6px;text-align:center">🔗</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px;text-align:center">Git 히스토리 공유</div>
+      <div style="font-size:.8rem;color:#6b7280;text-align:center">모든 worktree는 같은 .git을 공유. commit/push하면 다른 worktree에서도 보임</div>
+    </div>
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:16px">
+      <div style="font-size:1.3rem;margin-bottom:6px;text-align:center">💡</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px;text-align:center">네이밍 규칙</div>
+      <div style="font-size:.8rem;color:#6b7280;text-align:center"><code>프로젝트명-작업내용/</code> 형태로 통일하면 관리가 편함</div>
+    </div>
+  </div>
+
+  <h3>Worktree 명령어 치트시트</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>명령어</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>git worktree add ../폴더 브랜치</code></td><td>기존 브랜치로 worktree 생성</td></tr>
+        <tr><td><code>git worktree add -b 새브랜치 ../폴더</code></td><td>새 브랜치 만들면서 worktree 생성</td></tr>
+        <tr><td><code>git worktree list</code></td><td>모든 worktree 목록 확인</td></tr>
+        <tr><td><code>git worktree remove ../폴더</code></td><td>worktree 제거 (폴더도 삭제됨)</td></tr>
+        <tr><td><code>git worktree prune</code></td><td>수동 삭제된 worktree 정리</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>팀 전체 워크플로우에 Worktree 적용</h3>
+
+  <div class="diagram-box">
+    <div class="diagram-title">7인 팀 Worktree 워크플로우</div>
+
+    <div style="text-align:left;max-width:700px;margin:0 auto">
+      <!-- Phase 0 -->
+      <div style="background:#f3f4f6;border:2px solid #d1d5db;border-radius:10px;padding:14px;margin-bottom:10px">
+        <span class="badge bg-gray" style="margin-bottom:6px">Phase 0 — 팀장</span>
+        <div style="font-size:.85rem;line-height:1.7">
+          저장소 생성 → 초기 구조 커밋 → develop 브랜치 생성<br>
+          팀원 전원 <code>git clone</code>
+        </div>
+      </div>
+
+      <!-- Phase 1 -->
+      <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:14px;margin-bottom:10px">
+        <span class="badge bg-green" style="margin-bottom:6px">Phase 1 — 전원 동시 작업</span>
+        <div style="font-size:.85rem;line-height:1.7">
+          각 팀원이 <strong>자기 Task용 worktree를 생성</strong><br>
+          <code>git worktree add -b feature/내작업 ../프로젝트-내작업</code><br>
+          → 각 worktree 폴더에서 Claude Code 실행<br>
+          → 완료 즉시 push → PR → 리뷰 → 머지<br>
+          → worktree 제거 → 다음 Task 용 worktree 생성
+        </div>
+      </div>
+
+      <!-- Phase 1: 동시 진행 -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px">
+        <div style="background:#fff;border:1px solid #86efac;border-radius:8px;padding:10px;font-size:.78rem;text-align:center">
+          <strong>민수</strong><br>
+          📁 ../-db-models/<br>
+          <span class="badge bg-green" style="font-size:.65rem">Claude Code</span>
+        </div>
+        <div style="background:#fff;border:1px solid #86efac;border-radius:8px;padding:10px;font-size:.78rem;text-align:center">
+          <strong>지연</strong><br>
+          📁 ../-openai/<br>
+          <span class="badge bg-green" style="font-size:.65rem">Claude Code</span>
+        </div>
+        <div style="background:#fff;border:1px solid #86efac;border-radius:8px;padding:10px;font-size:.78rem;text-align:center">
+          <strong>현우</strong><br>
+          📁 ../-chat-ui/<br>
+          <span class="badge bg-green" style="font-size:.65rem">Claude Code</span>
+        </div>
+        <div style="background:#fff;border:1px solid #86efac;border-radius:8px;padding:10px;font-size:.78rem;text-align:center">
+          <strong>수빈</strong><br>
+          📁 ../-auth-ui/<br>
+          <span class="badge bg-green" style="font-size:.65rem">Claude Code</span>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:10px;padding:14px;margin-bottom:10px">
+        <span class="badge bg-blue" style="margin-bottom:6px">Phase 2 — 모듈 연결</span>
+        <div style="font-size:.85rem;line-height:1.7">
+          Phase 1 전부 머지 → 메인 폴더에서 <code>git pull</code><br>
+          새 worktree 생성 → 연결 작업 → PR → 머지
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px">
+        <span class="badge bg-red" style="margin-bottom:6px">Phase 3 — 공통 파일 (직렬)</span>
+        <div style="font-size:.85rem;line-height:1.7">
+          app.py 등 공통 파일은 <strong>worktree 없이 메인 폴더</strong>에서 직렬 작업<br>
+          한 명씩: 선언 → 수정 → PR → 머지 → 다음 사람
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box info-note">
+    <span class="icon">📌</span>
+    <div><strong>요약:</strong> Worktree = 브랜치마다 독립 폴더. 이 폴더에서 Claude Code를 실행하면 여러 Task를 동시에 진행할 수 있습니다. 기존 워크플로우에 <code>git worktree add</code> / <code>git worktree remove</code> 두 줄만 추가하면 됩니다.</div>
+  </div>
+</section>
+
+<!-- ===== SECTION 7: 실전 예시 ===== -->
+<section class="section" id="s7">
+  <div class="section-header">
+    <div class="section-number">7</div>
     <h2>실전 예시: AI 챗봇 프로젝트</h2>
   </div>
 
@@ -830,8 +1155,8 @@ TASK.md를 만들어줘. Phase별로 나누고,
   </div>
 </section>
 
-<!-- ===== SECTION 7: 체크리스트 ===== -->
-<section class="section" id="s7">
+<!-- ===== SECTION 8: 체크리스트 ===== -->
+<section class="section" id="s8">
   <div class="section-header">
     <div class="section-number" style="background:linear-gradient(135deg,#10b981,#059669)">✓</div>
     <h2>프로젝트 시작 전 체크리스트</h2>
