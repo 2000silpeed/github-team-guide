@@ -131,7 +131,7 @@
   .tl-conflict .tl-label{color:#ef4444}
 
   /* ===== File Tree ===== */
-  .ftree{background:#0d1117;color:#e6edf3;border-radius:12px;padding:20px;font-family:'Fira Code',monospace;font-size:.8rem;line-height:1.8;overflow-x:auto;border:1px solid #21262d}
+  .ftree{background:#0d1117;color:#e6edf3;border-radius:12px;padding:20px;font-family:'Fira Code','Cascadia Code',monospace;font-size:.8rem;line-height:1.8;overflow-x:auto;border:1px solid #21262d;white-space:pre}
   .ff{color:#79c0ff;font-weight:600}.fi{color:#e6edf3}.fcc{color:#8b949e}
 
   /* ===== Conflict ===== */
@@ -1366,37 +1366,37 @@ app = Flask(__name__)
   <h3 style="border-color:#7c3aed">원칙 2. 충돌이 안 나는 프로젝트 구조로 설계</h3>
   <p>TASK.md를 잘 나누려면, 그 전에 <strong>프로젝트 구조 자체를 충돌이 안 나게</strong> 설계해야 합니다.</p>
 
-  <div class="compare-grid">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0">
     <div style="border-radius:12px;overflow:hidden;border:2px solid #fca5a5">
       <div style="background:#fef2f2;padding:12px 16px;font-weight:700;font-size:.88rem;color:#991b1b;text-align:center">❌ 나쁜 구조 — 모든 게 하나에</div>
-      <div class="ftree" style="border-radius:0;border:none;margin:0">
+      <div class="ftree" style="border-radius:0;border:none;margin:0;font-size:.75rem;padding:16px">
 <span class="ff">project/</span>
-├── <span class="fi">app.py</span>          <span class="fcc"># ← 7명 전원이 수정</span>
-├── <span class="fi">service.py</span>      <span class="fcc"># ← 다들 건드림</span>
-├── <span class="fi">models.py</span>       <span class="fcc"># ← 다들 건드림</span>
-└── <span class="fi">utils.py</span>        <span class="fcc"># ← 다들 건드림</span>
+├── <span class="fi">app.py</span>       <span class="fcc"># 7명 전원이 수정</span>
+├── <span class="fi">service.py</span>   <span class="fcc"># 다들 건드림</span>
+├── <span class="fi">models.py</span>    <span class="fcc"># 다들 건드림</span>
+└── <span class="fi">utils.py</span>     <span class="fcc"># 다들 건드림</span>
 <span class="fcc">
 → 충돌 지옥 🔥</span>
       </div>
     </div>
     <div style="border-radius:12px;overflow:hidden;border:2px solid #86efac">
       <div style="background:#ecfdf5;padding:12px 16px;font-weight:700;font-size:.88rem;color:#166534;text-align:center">✅ 좋은 구조 — 기능별 파일 분리</div>
-      <div class="ftree" style="border-radius:0;border:none;margin:0">
+      <div class="ftree" style="border-radius:0;border:none;margin:0;font-size:.75rem;padding:16px">
 <span class="ff">project/</span>
-├── <span class="fi">app.py</span>               <span class="fcc"># import만 (거의 안 건드림)</span>
+├── <span class="fi">app.py</span>            <span class="fcc"># import만</span>
 ├── <span class="ff">routes/</span>
-│   ├── <span class="fi">chat.py</span>          <span class="fcc"># ← 민수만</span>
-│   ├── <span class="fi">auth.py</span>          <span class="fcc"># ← 수빈만</span>
-│   └── <span class="fi">admin.py</span>         <span class="fcc"># ← 지연만</span>
+│   ├── <span class="fi">chat.py</span>       <span class="fcc"># 민수만</span>
+│   ├── <span class="fi">auth.py</span>       <span class="fcc"># 수빈만</span>
+│   └── <span class="fi">admin.py</span>      <span class="fcc"># 지연만</span>
 ├── <span class="ff">services/</span>
-│   ├── <span class="fi">openai_svc.py</span>   <span class="fcc"># ← 지연만</span>
-│   └── <span class="fi">user_svc.py</span>     <span class="fcc"># ← 수빈만</span>
+│   ├── <span class="fi">openai_svc.py</span> <span class="fcc"># 지연만</span>
+│   └── <span class="fi">user_svc.py</span>   <span class="fcc"># 수빈만</span>
 ├── <span class="ff">models/</span>
-│   ├── <span class="fi">user.py</span>          <span class="fcc"># ← 민수만</span>
-│   └── <span class="fi">chat.py</span>          <span class="fcc"># ← 민수만</span>
+│   ├── <span class="fi">user.py</span>       <span class="fcc"># 민수만</span>
+│   └── <span class="fi">chat.py</span>       <span class="fcc"># 민수만</span>
 └── <span class="ff">templates/</span>
-    ├── <span class="fi">chat.html</span>        <span class="fcc"># ← 현우만</span>
-    └── <span class="fi">login.html</span>       <span class="fcc"># ← 수빈만</span>
+    ├── <span class="fi">chat.html</span>     <span class="fcc"># 현우만</span>
+    └── <span class="fi">login.html</span>    <span class="fcc"># 수빈만</span>
 <span class="fcc">
 → 각자 자기 파일만 수정! 충돌 0 ✨</span>
       </div>
