@@ -70,7 +70,7 @@
   tbody tr:last-child td{border-bottom:none}
   tbody tr:nth-child(even){background:#f9fafb}
 
-  .ftree{background:#0d1117;color:#e6edf3;border-radius:12px;padding:20px;font-family:'Fira Code',monospace;font-size:.8rem;line-height:1.8;overflow-x:auto;border:1px solid #21262d}
+  .ftree{background:#0d1117;color:#e6edf3;border-radius:12px;padding:20px;font-family:'Fira Code','Cascadia Code',monospace;font-size:.8rem;line-height:1.8;overflow-x:auto;border:1px solid #21262d;white-space:pre}
   .ff{color:#79c0ff;font-weight:600}.fi{color:#e6edf3}.fcc{color:#8b949e}
 
   .diagram-box{background:linear-gradient(135deg,#fafbff,#eef2ff);border:2px solid #c7d2fe;border-radius:16px;padding:28px;margin:16px 0;text-align:center;overflow-x:auto}
@@ -346,7 +346,7 @@
   <div class="diagram-box">
     <div class="diagram-title">PRD의 기능 → 폴더 구조로 변환</div>
     <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap;align-items:flex-start">
-      <div style="text-align:left;background:#fff;border-radius:12px;padding:16px;border:1px solid #e5e7eb;min-width:200px">
+      <div style="text-align:left;background:#fff;border-radius:12px;padding:16px;border:1px solid #e5e7eb;min-width:200px;flex-shrink:0">
         <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:#312e81">PRD 기능 목록</div>
         <div style="font-size:.82rem;line-height:2">
           📌 인증 (로그인/회원가입)<br>
@@ -357,7 +357,7 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;font-size:2rem;color:#9ca3af;padding-top:40px">→</div>
-      <div style="text-align:left;min-width:280px">
+      <div style="text-align:left;min-width:340px;flex:1">
         <div class="ftree" style="margin:0">
 <span class="ff">project/</span>
 ├── <span class="fi">app.py</span>              <span class="fcc"># 진입점 (import만)</span>
