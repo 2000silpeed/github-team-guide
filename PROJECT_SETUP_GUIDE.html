@@ -357,25 +357,34 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;font-size:2rem;color:#9ca3af;padding-top:40px">→</div>
-      <div style="text-align:left;min-width:340px;flex:1">
+      <div style="text-align:left;min-width:380px;flex:1">
         <div class="ftree" style="margin:0">
 <span class="ff">project/</span>
-├── <span class="fi">app.py</span>              <span class="fcc"># 진입점 (import만)</span>
-├── <span class="ff">routes/</span>
-│   ├── <span class="fi">auth.py</span>         <span class="fcc"># ← 인증</span>
-│   ├── <span class="fi">upload.py</span>       <span class="fcc"># ← 업로드</span>
-│   └── <span class="fi">quiz.py</span>         <span class="fcc"># ← 퀴즈</span>
-├── <span class="ff">services/</span>
-│   ├── <span class="fi">ai_service.py</span>   <span class="fcc"># ← AI 생성</span>
-│   ├── <span class="fi">quiz_service.py</span> <span class="fcc"># ← 채점</span>
-│   └── <span class="fi">file_service.py</span> <span class="fcc"># ← 파일 처리</span>
-├── <span class="ff">models/</span>
-│   ├── <span class="fi">user.py</span>         <span class="fcc"># ← User 모델</span>
-│   └── <span class="fi">quiz.py</span>         <span class="fcc"># ← Quiz 모델</span>
-└── <span class="ff">frontend/</span>
-    ├── <span class="fi">login.html</span>      <span class="fcc"># ← 인증 UI</span>
-    ├── <span class="fi">upload.html</span>     <span class="fcc"># ← 업로드 UI</span>
-    └── <span class="fi">quiz.html</span>       <span class="fcc"># ← 퀴즈 UI</span>
+├── <span class="ff">backend/</span>                <span class="fcc"># 백엔드</span>
+│   ├── <span class="fi">app.py</span>              <span class="fcc"># 진입점 (import만)</span>
+│   ├── <span class="ff">routes/</span>
+│   │   ├── <span class="fi">auth.py</span>         <span class="fcc"># ← 인증</span>
+│   │   ├── <span class="fi">upload.py</span>       <span class="fcc"># ← 업로드</span>
+│   │   └── <span class="fi">quiz.py</span>         <span class="fcc"># ← 퀴즈</span>
+│   ├── <span class="ff">services/</span>
+│   │   ├── <span class="fi">ai_service.py</span>   <span class="fcc"># ← AI 생성</span>
+│   │   ├── <span class="fi">quiz_service.py</span> <span class="fcc"># ← 채점</span>
+│   │   └── <span class="fi">file_service.py</span> <span class="fcc"># ← 파일 처리</span>
+│   ├── <span class="ff">models/</span>
+│   │   ├── <span class="fi">user.py</span>         <span class="fcc"># ← User 모델</span>
+│   │   └── <span class="fi">quiz.py</span>         <span class="fcc"># ← Quiz 모델</span>
+│   └── <span class="fi">requirements.txt</span>
+│
+└── <span class="ff">frontend/</span>               <span class="fcc"># 프론트엔드</span>
+    ├── <span class="ff">pages/</span>
+    │   ├── <span class="fi">login.html</span>      <span class="fcc"># ← 인증 UI</span>
+    │   ├── <span class="fi">upload.html</span>     <span class="fcc"># ← 업로드 UI</span>
+    │   └── <span class="fi">quiz.html</span>       <span class="fcc"># ← 퀴즈 UI</span>
+    ├── <span class="ff">js/</span>
+    │   ├── <span class="fi">auth.js</span>         <span class="fcc"># ← 인증 로직</span>
+    │   └── <span class="fi">quiz.js</span>         <span class="fcc"># ← 퀴즈 로직</span>
+    └── <span class="ff">css/</span>
+        └── <span class="fi">style.css</span>
         </div>
       </div>
     </div>
@@ -387,12 +396,13 @@
     <table>
       <thead><tr><th>폴더</th><th>역할</th><th>규칙</th></tr></thead>
       <tbody>
-        <tr><td><code>routes/</code></td><td>API 엔드포인트</td><td>PRD의 API 하나당 파일 하나</td></tr>
-        <tr><td><code>services/</code></td><td>비즈니스 로직</td><td>PRD의 핵심 기능 하나당 파일 하나</td></tr>
-        <tr><td><code>models/</code></td><td>DB 모델</td><td>PRD의 데이터 모델 하나당 파일 하나</td></tr>
-        <tr><td><code>frontend/</code></td><td>화면 (UI)</td><td>PRD의 화면 하나당 폴더/파일 하나</td></tr>
-        <tr><td><code>tests/</code></td><td>테스트 코드</td><td>위 파일과 1:1 매칭</td></tr>
-        <tr><td><code>config/</code></td><td>설정</td><td>환경별 설정 파일</td></tr>
+        <tr><td><code>backend/</code></td><td>백엔드 전체</td><td>서버 코드를 한 폴더에 격리</td></tr>
+        <tr><td><code>backend/routes/</code></td><td>API 엔드포인트</td><td>PRD의 API 그룹 하나당 파일 하나</td></tr>
+        <tr><td><code>backend/services/</code></td><td>비즈니스 로직</td><td>PRD의 핵심 기능 하나당 파일 하나</td></tr>
+        <tr><td><code>backend/models/</code></td><td>DB 모델</td><td>PRD의 데이터 모델 하나당 파일 하나</td></tr>
+        <tr><td><code>frontend/pages/</code></td><td>HTML 페이지</td><td>PRD의 화면 하나당 파일 하나</td></tr>
+        <tr><td><code>frontend/js/</code></td><td>JS 로직</td><td>페이지 또는 기능 단위로 분리</td></tr>
+        <tr><td><code>tests/</code></td><td>테스트 코드</td><td>backend/frontend 파일과 1:1 매칭</td></tr>
       </tbody>
     </table>
   </div>
@@ -621,11 +631,11 @@
   <pre><code><span class="cm"># Phase 1 — 담당자 배정 완료</span>
 
 - [ ] <span class="var">담당: 민수(백엔드)</span>  DB 모델 정의
-      파일: models/user.py, models/quiz.py
+      파일: backend/models/user.py, backend/models/quiz.py
       브랜치: feature/db-models
 
 - [ ] <span class="var">담당: 지연(AI)</span>  OpenAI 퀴즈 생성 서비스
-      파일: services/ai_service.py
+      파일: backend/services/ai_service.py
       브랜치: feature/ai-quiz-gen
 
 - [ ] <span class="var">담당: 현우(프론트)</span>  로그인/회원가입 페이지
