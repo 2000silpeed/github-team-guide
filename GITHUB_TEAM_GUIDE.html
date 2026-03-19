@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub 팀 협업 완전 가이드</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f4f8;
+    color: #1a202c;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ===== Hero Section ===== */
+  .hero {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 40%, #1a3a5c 100%);
+    color: #fff;
+    padding: 80px 20px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(56,189,248,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(168,85,247,0.08) 0%, transparent 50%);
+    animation: heroFloat 20s ease-in-out infinite;
+  }
+  @keyframes heroFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-2%, 2%); }
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .hero-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, #58a6ff, #a78bfa);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 40px;
+    box-shadow: 0 8px 32px rgba(88,166,255,0.3);
+  }
+  .hero h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+  .hero p { font-size: 1.1rem; color: #8b949e; max-width: 500px; margin: 0 auto; }
+  .hero-badges { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+  .hero-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    color: #8b949e;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ===== TOC ===== */
+  .toc {
+    max-width: 900px;
+    margin: -30px auto 40px;
+    position: relative; z-index: 2;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 36px;
+  }
+  .toc h2 { font-size: 1.2rem; color: #6b7280; margin-bottom: 16px; font-weight: 600; }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
+  }
+  .toc-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #1a202c;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .toc-item:hover { background: #f0f4ff; color: #3b82f6; transform: translateX(4px); }
+  .toc-num {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ===== Sections ===== */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+
+  .section {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    padding: 40px 36px;
+    margin-bottom: 32px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f4f8;
+  }
+  .section-number {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 1.5rem; font-weight: 800; color: #111827; }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 32px 0 16px;
+    padding-left: 14px;
+    border-left: 4px solid #3b82f6;
+  }
+  h3:first-of-type { margin-top: 0; }
+
+  p { margin-bottom: 12px; color: #374151; }
+
+  /* ===== Code Blocks ===== */
+  pre {
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 12px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+    border: 1px solid #21262d;
+    position: relative;
+  }
+  pre .comment { color: #8b949e; }
+  pre .cmd { color: #79c0ff; }
+  pre .flag { color: #d2a8ff; }
+  pre .string { color: #a5d6ff; }
+  pre .output { color: #7ee787; }
+  code {
+    background: #f1f5f9;
+    color: #e11d48;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.88em;
+    font-family: 'Fira Code', 'Cascadia Code', monospace;
+  }
+  pre code { background: none; color: inherit; padding: 0; border-radius: 0; }
+  .code-label {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-size: 0.7rem;
+    color: #484f58;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== Diagrams ===== */
+  .diagram-box {
+    background: linear-gradient(135deg, #fafbff 0%, #f0f4ff 100%);
+    border: 2px solid #dbeafe;
+    border-radius: 16px;
+    padding: 32px;
+    margin: 20px 0;
+    text-align: center;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  /* Flow arrows */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .flow-box {
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 110px;
+  }
+  .flow-arrow {
+    font-size: 1.4rem;
+    color: #9ca3af;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .flow-arrow-down {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0;
+    font-size: 1.4rem;
+    color: #9ca3af;
+  }
+  .flow-blue { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+  .flow-green { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+  .flow-purple { background: #ede9fe; color: #5b21b6; border: 2px solid #c4b5fd; }
+  .flow-orange { background: #fff7ed; color: #9a3412; border: 2px solid #fdba74; }
+  .flow-red { background: #fef2f2; color: #991b1b; border: 2px solid #fca5a5; }
+  .flow-gray { background: #f3f4f6; color: #374151; border: 2px solid #d1d5db; }
+  .flow-cyan { background: #ecfeff; color: #155e75; border: 2px solid #67e8f9; }
+  .flow-cmd {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 4px;
+    font-weight: 500;
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* ===== Tables ===== */
+  .table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 12px; border: 1px solid #e5e7eb; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  thead { background: linear-gradient(135deg, #1e3a5f, #2563eb); color: #fff; }
+  th { padding: 14px 18px; text-align: left; font-weight: 600; white-space: nowrap; }
+  td { padding: 12px 18px; border-bottom: 1px solid #f0f0f0; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #f0f4ff; }
+
+  /* ===== Info / Tip / Warning Boxes ===== */
+  .info-box {
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .info-box .icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+  .info-tip { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+  .info-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .info-danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+  .info-note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+
+  /* ===== Steps ===== */
+  .steps { margin: 20px 0; }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 44px;
+    bottom: -20px;
+    width: 2px;
+    background: #dbeafe;
+  }
+  .step-num {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-content { flex: 1; padding-top: 6px; }
+  .step-content strong { display: block; font-size: 1rem; margin-bottom: 4px; }
+
+  /* ===== Branch Diagram ===== */
+  .branch-diagram {
+    background: #0d1117;
+    border-radius: 16px;
+    padding: 32px;
+    margin: 20px 0;
+    overflow-x: auto;
+    border: 1px solid #21262d;
+  }
+  .branch-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .branch-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .branch-connector {
+    width: 24px;
+    height: 2px;
+    flex-shrink: 0;
+  }
+  .b-main { background: #3fb950; border-color: #3fb950; }
+  .b-develop { background: #58a6ff; border-color: #58a6ff; }
+  .b-feature { background: #d2a8ff; border-color: #d2a8ff; }
+  .bc-main { background: #3fb950; }
+  .bc-develop { background: #58a6ff; }
+  .bc-feature { background: #d2a8ff; }
+  .b-label {
+    padding: 3px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .bl-main { background: rgba(63,185,80,0.15); color: #3fb950; }
+  .bl-develop { background: rgba(88,166,255,0.15); color: #58a6ff; }
+  .bl-feature { background: rgba(210,168,255,0.15); color: #d2a8ff; }
+  .b-desc { color: #8b949e; margin-left: 8px; }
+  .b-indent { padding-left: 36px; }
+  .b-indent2 { padding-left: 72px; }
+
+  /* ===== Git 3 Areas Diagram ===== */
+  .areas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .area-card {
+    padding: 24px 16px;
+    text-align: center;
+    position: relative;
+  }
+  .area-icon { font-size: 2.4rem; margin-bottom: 10px; }
+  .area-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+  .area-subtitle { font-size: 0.78rem; color: #6b7280; margin-bottom: 8px; }
+  .area-desc { font-size: 0.82rem; color: #6b7280; line-height: 1.5; }
+  .area-arrow {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px;
+  }
+  .area-arrow-icon { font-size: 1.6rem; color: #3b82f6; }
+  .area-arrow-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #3b82f6;
+    font-family: 'Fira Code', monospace;
+    background: #fff;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .area-github {
+    grid-column: 1 / -1;
+    margin-top: 16px;
+  }
+  .area-github .area-card {
+    max-width: 220px;
+    margin: 0 auto;
+  }
+  .push-arrow {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.6rem;
+    color: #3b82f6;
+  }
+  .push-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #3b82f6;
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* ===== Mock UI ===== */
+  .mock-ui {
+    background: #fff;
+    border: 2px solid #d1d5db;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 16px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .mock-titlebar {
+    background: #f6f8fa;
+    border-bottom: 1px solid #d1d5db;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #57606a;
+    font-weight: 600;
+  }
+  .mock-dots {
+    display: flex; gap: 6px;
+  }
+  .mock-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .mock-dot-r { background: #ff5f57; }
+  .mock-dot-y { background: #febc2e; }
+  .mock-dot-g { background: #28c840; }
+  .mock-body { padding: 24px; }
+  .mock-field { margin-bottom: 16px; }
+  .mock-label { font-size: 0.82rem; font-weight: 600; color: #57606a; margin-bottom: 6px; }
+  .mock-input {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 10px 14px;
+    width: 100%;
+    font-size: 0.9rem;
+    color: #1f2328;
+  }
+  .mock-radio { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 0.88rem; }
+  .mock-radio-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid #d0d7de;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mock-radio-dot.active { border-color: #2563eb; }
+  .mock-radio-dot.active::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #2563eb;
+  }
+  .mock-checkbox { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; margin-bottom: 4px; }
+  .mock-check {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: #2563eb;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .mock-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    cursor: default;
+  }
+  .mock-btn-green { background: #2da44e; color: #fff; }
+  .mock-btn-blue { background: #2563eb; color: #fff; }
+
+  .mock-select {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: #1f2328;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ===== Comparison ===== */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .compare-card {
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .compare-bad { background: #fef2f2; border: 2px solid #fecaca; }
+  .compare-good { background: #ecfdf5; border: 2px solid #a7f3d0; }
+  .compare-icon { font-size: 2rem; margin-bottom: 8px; }
+  .compare-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+  .compare-desc { font-size: 0.85rem; color: #6b7280; line-height: 1.5; }
+
+  /* ===== Checklist ===== */
+  .checklist { margin: 16px 0; }
+  .checklist-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #1e3a5f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .check-item:hover { background: #f0f4ff; }
+  .check-box {
+    width: 22px; height: 22px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .check-item.checked .check-box {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+  .check-item.checked .check-box::after {
+    content: '✓';
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* ===== FAQ / Accordion ===== */
+  .faq-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .faq-q {
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafbfc;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .faq-q:hover { background: #f0f4ff; }
+  .faq-q .arrow { transition: transform 0.3s; font-size: 0.8rem; color: #9ca3af; }
+  .faq-item.open .faq-q .arrow { transform: rotate(180deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding: 0 20px;
+  }
+  .faq-item.open .faq-a {
+    max-height: 500px;
+    padding: 16px 20px;
+  }
+
+  /* ===== Commit Convention ===== */
+  .commit-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 20px; }
+  .commit-tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: 'Fira Code', monospace;
+  }
+  .ct-feat { background: #dbeafe; color: #1e40af; }
+  .ct-fix { background: #fef2f2; color: #991b1b; }
+  .ct-docs { background: #ecfdf5; color: #065f46; }
+  .ct-style { background: #faf5ff; color: #6b21a8; }
+  .ct-refactor { background: #fff7ed; color: #9a3412; }
+  .ct-test { background: #ecfeff; color: #155e75; }
+  .ct-chore { background: #f3f4f6; color: #374151; }
+
+  /* ===== Cheatsheet ===== */
+  .cheat-group {
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .cheat-group-title {
+    background: linear-gradient(135deg, #1e3a5f, #2563eb);
+    color: #fff;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .cheat-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 16px;
+    font-size: 0.88rem;
+  }
+  .cheat-row:last-child { border-bottom: none; }
+  .cheat-row:nth-child(even) { background: #f9fafb; }
+  .cheat-cmd {
+    font-family: 'Fira Code', monospace;
+    background: #0d1117;
+    color: #e6edf3;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    min-width: 300px;
+  }
+  .cheat-desc { color: #6b7280; }
+
+  /* ===== Folder Tree ===== */
+  .folder-tree {
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 12px;
+    padding: 24px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    border: 1px solid #21262d;
+  }
+  .ft-folder { color: #79c0ff; font-weight: 600; }
+  .ft-file { color: #e6edf3; }
+  .ft-comment { color: #8b949e; }
+
+  /* ===== Conflict Diagram ===== */
+  .conflict-code {
+    background: #0d1117;
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    border: 1px solid #21262d;
+    margin: 12px 0;
+  }
+  .conflict-mine {
+    background: rgba(63,185,80,0.12);
+    color: #7ee787;
+    display: block;
+    padding: 0 8px;
+    margin: 0 -8px;
+  }
+  .conflict-theirs {
+    background: rgba(248,81,73,0.12);
+    color: #ffa198;
+    display: block;
+    padding: 0 8px;
+    margin: 0 -8px;
+  }
+  .conflict-marker {
+    color: #8b949e;
+    display: block;
+    padding: 0 8px;
+    margin: 0 -8px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.6rem; }
+    .section { padding: 24px 18px; }
+    .toc { padding: 20px; }
+    .toc-grid { grid-template-columns: 1fr; }
+    .areas-grid { grid-template-columns: 1fr; }
+    .area-arrow { display: none; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .flow-row { flex-direction: column; gap: 0; }
+    .flow-arrow { transform: rotate(90deg); padding: 4px 0; }
+    .cheat-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .cheat-cmd { min-width: auto; }
+  }
+
+  /* ===== Utility ===== */
+  .mt-0 { margin-top: 0; }
+  .mb-0 { margin-bottom: 0; }
+  .text-center { text-align: center; }
+  .text-sm { font-size: 0.85rem; }
+  .text-muted { color: #6b7280; }
+  .strong { font-weight: 700; }
+  .gap-sm { gap: 8px; }
+  .inline-code { /* same as code */ }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+  /* ===== Print ===== */
+  @media print {
+    .hero { padding: 40px 20px; }
+    .section { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  }
+
+  /* ===== Extra visual elements ===== */
+  .vs-divider {
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.1rem; color: #9ca3af;
+    padding: 0 12px;
+  }
+
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-yellow { background: #fef9c3; color: #854d0e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+
+  /* ===== PR Review UI Mock ===== */
+  .review-line {
+    display: flex; font-family: 'Fira Code', monospace; font-size: 0.82rem;
+  }
+  .review-ln {
+    color: #484f58; padding: 2px 12px; text-align: right; min-width: 40px;
+    user-select: none; border-right: 1px solid #21262d;
+  }
+  .review-code {
+    padding: 2px 12px; flex: 1;
+  }
+  .review-add { background: rgba(63,185,80,0.12); }
+  .review-add .review-code { color: #7ee787; }
+  .review-add .review-code::before { content: '+ '; color: #3fb950; }
+
+  /* ===== Footer ===== */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-size: 0.85rem;
+  }
+  .footer a { color: #3b82f6; text-decoration: none; }
+
+  /* Back to top */
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    z-index: 100;
+  }
+  .back-to-top.visible { opacity: 1; transform: translateY(0); }
+  .back-to-top:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(59,130,246,0.4); }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    z-index: 1000;
+    transition: width 0.1s;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">↑</button>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero" id="top">
+  <div class="hero-content">
+    <div class="hero-icon">
+      <svg width="40" height="40" viewBox="0 0 16 16" fill="#fff"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    </div>
+    <h1>GitHub 팀 협업 완전 가이드</h1>
+    <p>Git 설치부터 PR 머지까지, 7인 팀의 협업 워크플로우를 한 눈에</p>
+    <div class="hero-badges">
+      <span class="hero-badge">For Beginners</span>
+      <span class="hero-badge">7인 팀 기준</span>
+      <span class="hero-badge">AI 프로젝트</span>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== TOC ==================== -->
+<nav class="toc">
+  <h2>목차</h2>
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><span class="toc-num">1</span>사전 준비</a>
+    <a href="#s2" class="toc-item"><span class="toc-num">2</span>Git 핵심 개념 이해하기</a>
+    <a href="#s3" class="toc-item"><span class="toc-num">3</span>저장소 만들고 연결하기</a>
+    <a href="#s4" class="toc-item"><span class="toc-num">4</span>브랜치 전략</a>
+    <a href="#s5" class="toc-item"><span class="toc-num">5</span>일상적인 작업 흐름</a>
+    <a href="#s6" class="toc-item"><span class="toc-num">6</span>Pull Request 완전 정복</a>
+    <a href="#s7" class="toc-item"><span class="toc-num">7</span>충돌(Conflict) 해결하기</a>
+    <a href="#s8" class="toc-item"><span class="toc-num">8</span>팀 협업 규칙 (컨벤션)</a>
+    <a href="#s9" class="toc-item"><span class="toc-num">9</span>자주 발생하는 문제와 해결법</a>
+    <a href="#s10" class="toc-item"><span class="toc-num">10</span>명령어 치트시트</a>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- ==================== SECTION 1 ==================== -->
+<section class="section" id="s1">
+  <div class="section-header">
+    <div class="section-number">1</div>
+    <h2>사전 준비</h2>
+  </div>
+
+  <h3>1-1. Git 설치</h3>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0">
+    <div>
+      <div class="badge-row"><span class="badge badge-blue">Windows</span></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>git-scm.com 에서 다운로드</strong>
+            <span class="text-sm text-muted">최신 버전 설치 파일 다운로드</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>모든 옵션 기본값(Next)으로 진행</strong>
+            <span class="text-sm text-muted">특별히 변경할 것 없음</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>설치 확인</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="badge-row"><span class="badge badge-blue">Mac</span></div>
+      <pre><code><span class="comment"># 터미널에서 실행</span>
+xcode-select --install
+<span class="comment"># 또는 Homebrew 사용</span>
+brew install git</code></pre>
+    </div>
+  </div>
+
+  <pre><code><span class="cmd">git</span> <span class="flag">--version</span>
+<span class="comment"># 출력 예: git version 2.43.0</span></code></pre>
+
+  <h3>1-2. GitHub 계정 만들기</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content"><strong>github.com 접속</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content"><strong>Sign up 클릭</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content"><strong>이메일, 비밀번호, 사용자명 입력</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content"><strong>이메일 인증 완료</strong></div>
+    </div>
+  </div>
+
+  <h3>1-3. Git 초기 설정 <span class="badge badge-red" style="font-size:0.72rem;vertical-align:middle">모든 팀원 필수</span></h3>
+  <pre><code><span class="comment"># 본인 이름과 이메일 설정 (커밋에 표시됨)</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> user.name <span class="string">"홍길동"</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> user.email <span class="string">"gildong@example.com"</span>
+
+<span class="comment"># 기본 브랜치 이름을 main으로 설정</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> init.defaultBranch main
+
+<span class="comment"># 한글 파일명 깨짐 방지</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> core.quotepath false</code></pre>
+
+  <h3>1-4. GitHub 인증 설정 (SSH 키)</h3>
+  <p>매번 비밀번호를 입력하지 않기 위해 SSH 키를 등록합니다.</p>
+
+  <pre><code><span class="comment"># 1) SSH 키 생성</span>
+<span class="cmd">ssh-keygen</span> <span class="flag">-t ed25519</span> <span class="flag">-C</span> <span class="string">"gildong@example.com"</span>
+<span class="comment"># 엔터 3번 (기본 경로, 비밀번호 없음)</span>
+
+<span class="comment"># 2) 생성된 공개키 복사</span>
+<span class="comment"># Windows:</span>
+cat ~/.ssh/id_ed25519.pub | clip
+<span class="comment"># Mac:</span>
+cat ~/.ssh/id_ed25519.pub | pbcopy</code></pre>
+
+  <!-- Mock UI: SSH key registration -->
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      GitHub.com → Settings → SSH and GPG keys
+    </div>
+    <div class="mock-body">
+      <div class="mock-field">
+        <div class="mock-label">Title</div>
+        <div class="mock-input">내 노트북 키</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-label">Key</div>
+        <div class="mock-input" style="font-family:monospace;font-size:0.82rem;color:#6b7280">ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... gildong@example.com</div>
+      </div>
+      <div class="mock-btn mock-btn-green">Add SSH key</div>
+    </div>
+  </div>
+
+  <pre><code><span class="comment"># 연결 확인</span>
+<span class="cmd">ssh</span> <span class="flag">-T</span> git@github.com
+<span class="output"># Hi 사용자명! You've successfully authenticated</span></code></pre>
+</section>
+
+<!-- ==================== SECTION 2 ==================== -->
+<section class="section" id="s2">
+  <div class="section-header">
+    <div class="section-number">2</div>
+    <h2>Git의 핵심 개념 이해하기</h2>
+  </div>
+
+  <h3>2-1. Git이란?</h3>
+
+  <div class="compare-grid">
+    <div class="compare-card" style="background:#eff6ff;border-color:#bfdbfe">
+      <div class="compare-icon">💻</div>
+      <div class="compare-title">Git</div>
+      <div class="compare-desc">내 컴퓨터의 <strong>"변경 기록 장치"</strong><br>코드의 변경 이력을 관리하는 도구</div>
+    </div>
+    <div class="compare-card" style="background:#f0fdf4;border-color:#bbf7d0">
+      <div class="compare-icon">☁️</div>
+      <div class="compare-title">GitHub</div>
+      <div class="compare-desc">팀이 함께 쓰는 <strong>"클라우드 공유 폴더"</strong><br>이력을 온라인에 저장하고 팀원과 공유</div>
+    </div>
+  </div>
+
+  <h3>2-2. Git의 3가지 영역</h3>
+  <p>파일이 거치는 3단계를 이해하면 Git의 절반은 마스터한 것입니다.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-title">내 컴퓨터 (Local)</div>
+    <div class="areas-grid">
+      <div class="area-card" style="background:#fff7ed;border-radius:12px;border:2px solid #fdba74">
+        <div class="area-icon">📁</div>
+        <div class="area-title">작업 디렉토리</div>
+        <div class="area-subtitle">Working Directory</div>
+        <div class="area-desc">파일을 수정하는 곳</div>
+        <div class="area-arrow">
+          <div class="area-arrow-label">git add</div>
+          <div class="area-arrow-icon">→</div>
+        </div>
+      </div>
+      <div class="area-card" style="background:#eff6ff;border-radius:12px;border:2px solid #93c5fd">
+        <div class="area-icon">📋</div>
+        <div class="area-title">스테이징 영역</div>
+        <div class="area-subtitle">Staging Area</div>
+        <div class="area-desc">커밋할 파일을 골라두는 곳</div>
+        <div class="area-arrow">
+          <div class="area-arrow-label">git commit</div>
+          <div class="area-arrow-icon">→</div>
+        </div>
+      </div>
+      <div class="area-card" style="background:#ecfdf5;border-radius:12px;border:2px solid #86efac">
+        <div class="area-icon">🗄️</div>
+        <div class="area-title">로컬 저장소</div>
+        <div class="area-subtitle">Repository</div>
+        <div class="area-desc">변경 이력 저장소</div>
+      </div>
+    </div>
+    <div class="push-arrow">
+      ↓<br>
+      <span class="push-label">git push (GitHub에 업로드)</span>
+    </div>
+    <div style="display:inline-block;background:#161b22;color:#fff;border-radius:12px;padding:16px 40px;border:2px solid #30363d">
+      <div style="font-size:1.5rem;margin-bottom:4px">
+        <svg width="24" height="24" viewBox="0 0 16 16" fill="#fff" style="vertical-align:middle"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </div>
+      <div style="font-size:0.82rem;color:#8b949e">원격 저장소 — 팀원 모두 접근 가능</div>
+    </div>
+  </div>
+
+  <h3>2-3. 핵심 용어 정리</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>용어</th><th>뜻</th><th>비유</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Repository</code></td><td>프로젝트 폴더 + 변경 이력</td><td>📒 프로젝트 바인더</td></tr>
+        <tr><td><code>Commit</code></td><td>변경 사항의 스냅샷 저장</td><td>💾 세이브 포인트</td></tr>
+        <tr><td><code>Branch</code></td><td>독립된 작업 공간</td><td>🌌 평행 우주</td></tr>
+        <tr><td><code>Merge</code></td><td>브랜치를 합치는 것</td><td>🔗 평행 우주 합치기</td></tr>
+        <tr><td><code>Pull Request</code></td><td>머지 전 코드 리뷰 요청</td><td>🙋 "이거 합쳐도 될까요?"</td></tr>
+        <tr><td><code>Clone</code></td><td>원격 저장소를 내 컴퓨터로 복사</td><td>📥 프로젝트 다운로드</td></tr>
+        <tr><td><code>Push</code></td><td>내 커밋을 GitHub에 업로드</td><td>☁️ 클라우드에 백업</td></tr>
+        <tr><td><code>Pull</code></td><td>GitHub의 최신 내용을 내려받기</td><td>🔄 최신 버전 동기화</td></tr>
+        <tr><td><code>Conflict</code></td><td>같은 부분을 다르게 수정했을 때</td><td>⚡ 동시 편집 충돌</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== SECTION 3 ==================== -->
+<section class="section" id="s3">
+  <div class="section-header">
+    <div class="section-number">3</div>
+    <h2>GitHub 저장소 만들고 연결하기</h2>
+  </div>
+
+  <h3>3-1. 팀 리더 : 저장소 생성</h3>
+  <p>GitHub 접속 → 우측 상단 <strong>+</strong> → <strong>New repository</strong></p>
+
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      Create a new repository
+    </div>
+    <div class="mock-body">
+      <div class="mock-field">
+        <div class="mock-label">Repository name</div>
+        <div class="mock-input">ai-project</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-label">Description <span class="text-muted">(optional)</span></div>
+        <div class="mock-input">AI 개발 프로젝트</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-radio"><div class="mock-radio-dot active"></div> Public</div>
+        <div class="mock-radio"><div class="mock-radio-dot"></div> Private</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-checkbox"><div class="mock-check">✓</div> Add a README file</div>
+        <div class="mock-checkbox" style="margin-top:6px">
+          <span class="text-sm">Add .gitignore:</span>
+          <span class="mock-select">Python ▾</span>
+        </div>
+      </div>
+      <div class="mock-btn mock-btn-green">Create repository</div>
+    </div>
+  </div>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div><strong>.gitignore</strong>는 Git이 무시할 파일 목록입니다. AI 프로젝트라면 <strong>Python</strong> 템플릿을 선택하면 <code>__pycache__/</code>, <code>.env</code>, <code>*.pyc</code> 등이 자동으로 제외됩니다.</div>
+  </div>
+
+  <h3>3-2. 팀 리더 : 팀원 초대</h3>
+  <p>저장소 페이지 → <strong>Settings</strong> → <strong>Collaborators</strong> → <strong>Add people</strong></p>
+
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      Settings → Collaborators
+    </div>
+    <div class="mock-body">
+      <div style="margin-bottom:16px"><span class="mock-btn mock-btn-green" style="padding:8px 16px;font-size:0.82rem">Add people</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;border-radius:8px">
+          <span>👤 팀원A (gildong)</span>
+          <span class="badge badge-green">✓ Accepted</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;border-radius:8px">
+          <span>👤 팀원B (chulsoo)</span>
+          <span class="badge badge-yellow">⏳ Pending</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;border-radius:8px">
+          <span>👤 팀원C (younghee)</span>
+          <span class="badge badge-yellow">⏳ Pending</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f6f8fa;border-radius:8px;color:#9ca3af">
+          <span>👤 ...</span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p>초대받은 팀원은 <strong>이메일</strong> 또는 <strong>GitHub 알림</strong>에서 수락합니다.</p>
+
+  <h3>3-3. 모든 팀원 : 저장소 Clone (다운로드)</h3>
+  <pre><code><span class="comment"># 프로젝트를 저장할 폴더로 이동</span>
+<span class="cmd">cd</span> ~/projects
+
+<span class="comment"># 저장소 복제 (SSH 주소 사용)</span>
+<span class="cmd">git clone</span> git@github.com:팀리더계정/ai-project.git
+
+<span class="comment"># 프로젝트 폴더로 이동</span>
+<span class="cmd">cd</span> ai-project</code></pre>
+
+  <div class="info-box info-tip">
+    <span class="icon">✅</span>
+    <div>이제 모든 팀원의 컴퓨터에 동일한 프로젝트가 준비되었습니다!</div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 4 ==================== -->
+<section class="section" id="s4">
+  <div class="section-header">
+    <div class="section-number">4</div>
+    <h2>브랜치 전략 — 팀 협업의 핵심</h2>
+  </div>
+
+  <h3>4-1. 왜 브랜치가 필요한가?</h3>
+  <p>7명이 하나의 파일을 동시에 수정하면 충돌이 끊임없이 발생합니다.<br><strong>브랜치</strong>를 사용하면 각자 독립된 공간에서 작업한 뒤 안전하게 합칠 수 있습니다.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card compare-bad">
+      <div class="compare-icon">💥</div>
+      <div class="compare-title" style="color:#991b1b">브랜치가 없을 때</div>
+      <div class="compare-desc">
+        팀원A 수정 →<br>
+        팀원B 수정 → <strong>충돌! 충돌! 충돌!</strong><br>
+        팀원C 수정 →
+      </div>
+    </div>
+    <div class="compare-card compare-good">
+      <div class="compare-icon">✨</div>
+      <div class="compare-title" style="color:#166534">브랜치가 있을 때</div>
+      <div class="compare-desc">
+        각자 독립 공간에서 작업<br>
+        <strong>완성 후 PR로 안전하게 합침</strong><br>
+        충돌 최소화!
+      </div>
+    </div>
+  </div>
+
+  <h3>4-2. 7인 팀 추천 브랜치 구조</h3>
+
+  <div class="branch-diagram">
+    <div class="branch-line">
+      <div class="branch-dot b-main"></div>
+      <div class="branch-connector bc-main"></div>
+      <span class="b-label bl-main">main</span>
+      <span class="b-desc">배포용, 항상 안정적인 상태</span>
+    </div>
+    <div class="branch-line b-indent">
+      <div class="branch-dot b-develop"></div>
+      <div class="branch-connector bc-develop"></div>
+      <span class="b-label bl-develop">develop</span>
+      <span class="b-desc">개발 통합 브랜치</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/data-preprocessing</span>
+      <span class="b-desc">팀원A: 데이터 전처리</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/model-training</span>
+      <span class="b-desc">팀원B: 모델 학습</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/api-server</span>
+      <span class="b-desc">팀원C: API 서버</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/frontend</span>
+      <span class="b-desc">팀원D: 프론트엔드</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/database</span>
+      <span class="b-desc">팀원E: DB 설계</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/auth</span>
+      <span class="b-desc">팀원F: 인증 기능</span>
+    </div>
+    <div class="branch-line b-indent2">
+      <div class="branch-dot b-feature"></div>
+      <div class="branch-connector bc-feature"></div>
+      <span class="b-label bl-feature">feature/deployment</span>
+      <span class="b-desc">팀원G: 배포 설정</span>
+    </div>
+  </div>
+
+  <div class="info-box info-warn">
+    <span class="icon">⚠️</span>
+    <div>
+      <strong>규칙:</strong><br>
+      • <code>main</code> — 배포 가능한 안정 코드만 존재. <strong>직접 커밋 금지!</strong><br>
+      • <code>develop</code> — 팀원들의 기능이 합쳐지는 통합 브랜치<br>
+      • <code>feature/*</code> — 각 팀원이 기능을 개발하는 브랜치
+    </div>
+  </div>
+
+  <h3>4-3. 브랜치 보호 설정 (팀 리더)</h3>
+  <p>main과 develop 브랜치에 실수로 직접 push하는 것을 방지합니다.</p>
+  <p>GitHub 저장소 → <strong>Settings</strong> → <strong>Branches</strong> → <strong>Add branch protection rule</strong></p>
+
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      Branch protection rule
+    </div>
+    <div class="mock-body">
+      <div class="mock-field">
+        <div class="mock-label">Branch name pattern</div>
+        <div class="mock-input" style="font-family:monospace">main</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-checkbox"><div class="mock-check">✓</div> Require a pull request before merging</div>
+        <div class="mock-checkbox" style="margin-left:28px;margin-top:4px">
+          <div class="mock-check">✓</div> Require approvals: <span class="mock-select" style="margin-left:4px">1 ▾</span>
+        </div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-checkbox"><div class="mock-check">✓</div> Require status checks to pass before merging</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-checkbox"><div class="mock-check">✓</div> Do not allow bypassing the above settings</div>
+      </div>
+      <div class="mock-btn mock-btn-green">Create</div>
+    </div>
+  </div>
+
+  <div class="info-box info-note">
+    <span class="icon">📌</span>
+    <div><code>develop</code> 브랜치에도 동일하게 설정합니다.</div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 5 ==================== -->
+<section class="section" id="s5">
+  <div class="section-header">
+    <div class="section-number">5</div>
+    <h2>일상적인 작업 흐름 (Daily Workflow)</h2>
+  </div>
+
+  <p>매일 코드를 작성할 때 따라야 하는 순서입니다. 아래 흐름을 <strong>반복</strong>하면 됩니다.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-title">하루의 작업 흐름</div>
+
+    <div class="flow-row">
+      <div class="flow-box flow-blue">
+        ① 최신 코드 받기
+        <div class="flow-cmd">git pull</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-purple">
+        ② 내 브랜치에서 작업
+        <div class="flow-cmd">git checkout</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-orange">
+        ③ 변경 사항 저장
+        <div class="flow-cmd">git add → commit</div>
+      </div>
+    </div>
+
+    <div class="flow-arrow-down">↓</div>
+
+    <div class="flow-row">
+      <div class="flow-box flow-cyan">
+        ④ GitHub에 올리기
+        <div class="flow-cmd">git push</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-green">
+        ⑤ PR 생성
+        <div class="flow-cmd">GitHub 웹</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-green" style="background:#bbf7d0;border-color:#22c55e">
+        ⑥ 리뷰 → 승인 → 머지
+        <div class="flow-cmd">팀원 코드 리뷰</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>① 최신 코드 받기</h3>
+  <pre><code><span class="comment"># develop 브랜치의 최신 변경 사항 가져오기</span>
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop</code></pre>
+
+  <h3>② 내 브랜치 만들기 / 이동하기</h3>
+  <pre><code><span class="comment"># 새 기능 브랜치 만들기 (처음 한 번만)</span>
+<span class="cmd">git checkout</span> <span class="flag">-b</span> feature/model-training
+
+<span class="comment"># 이미 만든 브랜치로 이동</span>
+<span class="cmd">git checkout</span> feature/model-training
+
+<span class="comment"># develop의 최신 내용을 내 브랜치에 반영</span>
+<span class="cmd">git merge</span> develop</code></pre>
+
+  <h3>③ 작업 후 변경 사항 저장</h3>
+  <pre><code><span class="comment"># 어떤 파일이 변경되었는지 확인</span>
+<span class="cmd">git status</span>
+
+<span class="comment"># 변경된 파일 선택 (스테이징)</span>
+<span class="cmd">git add</span> train.py                <span class="comment"># 특정 파일만</span>
+<span class="cmd">git add</span> src/                    <span class="comment"># 특정 폴더 전체</span>
+<span class="cmd">git add</span> train.py utils.py       <span class="comment"># 여러 파일</span>
+
+<span class="comment"># 커밋 (저장)</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="string">"feat: 학습 모델에 Early Stopping 추가"</span></code></pre>
+
+  <h3>④ GitHub에 올리기</h3>
+  <pre><code><span class="cmd">git push</span> origin feature/model-training</code></pre>
+</section>
+
+<!-- ==================== SECTION 6 ==================== -->
+<section class="section" id="s6">
+  <div class="section-header">
+    <div class="section-number">6</div>
+    <h2>Pull Request(PR) 완전 정복</h2>
+  </div>
+
+  <h3>6-1. PR이란?</h3>
+  <p>PR은 <strong>"내가 작업한 코드를 develop(또는 main)에 합쳐주세요"</strong>라는 요청입니다.<br>바로 합치지 않고, <strong>다른 팀원이 코드를 검토(리뷰)</strong>한 뒤 합칩니다.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card compare-bad">
+      <div class="compare-icon">😱</div>
+      <div class="compare-title" style="color:#991b1b">혼자 코드를 합치면...</div>
+      <div class="compare-desc">
+        버그가 그대로 들어감!<br>
+        "이 변수 이름이 왜 a인지<br>아무도 모름..."
+      </div>
+    </div>
+    <div class="compare-card compare-good">
+      <div class="compare-icon">🎉</div>
+      <div class="compare-title" style="color:#166534">PR을 거치면...</div>
+      <div class="compare-desc">
+        팀원이 버그를 발견!<br>
+        "여기 에러 처리가 빠져있네요~"<br>
+        "변수명 바꾸면 더 좋겠어요!"
+      </div>
+    </div>
+  </div>
+
+  <h3>6-2. PR 생성 방법</h3>
+  <p><strong>방법 1: GitHub 웹에서 생성 (추천)</strong></p>
+  <p>push 후 GitHub 저장소 페이지에 노란 배너가 나타납니다:</p>
+
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      github.com/팀리더계정/ai-project
+    </div>
+    <div class="mock-body">
+      <!-- Yellow banner -->
+      <div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:0.9rem">🟡 <strong>feature/model-training</strong> had recent pushes</span>
+        <span class="mock-btn mock-btn-green" style="margin:0;padding:8px 16px;font-size:0.82rem">Compare & pull request</span>
+      </div>
+
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:16px">Open a pull request</div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+        <span class="badge badge-blue">base: develop</span>
+        <span style="font-size:1.2rem;color:#9ca3af">←</span>
+        <span class="badge" style="background:#ede9fe;color:#5b21b6">compare: feature/model-training</span>
+      </div>
+
+      <div class="mock-field">
+        <div class="mock-label">Title</div>
+        <div class="mock-input">feat: 학습 모델에 Early Stopping 기능 추가</div>
+      </div>
+
+      <div class="mock-field">
+        <div class="mock-label">Description</div>
+        <div class="mock-input" style="min-height:120px;line-height:1.6;font-size:0.85rem;white-space:pre-line"><strong>## 변경 사항</strong>
+- EarlyStopping 콜백 구현
+- patience, min_delta 파라미터 지원
+- 테스트 코드 추가
+
+<strong>## 테스트</strong>
+☑ 단위 테스트 통과
+☑ 기존 학습 파이프라인과 호환 확인</div>
+      </div>
+
+      <div class="mock-field">
+        <div class="mock-label">Reviewers</div>
+        <div style="display:flex;gap:8px">
+          <span class="badge badge-blue">👤 팀원A</span>
+          <span class="badge badge-blue">👤 팀원B</span>
+        </div>
+      </div>
+
+      <div class="mock-btn mock-btn-green">Create pull request</div>
+    </div>
+  </div>
+
+  <p style="margin-top:16px"><strong>방법 2: 터미널에서 생성</strong></p>
+  <pre><code><span class="comment"># GitHub CLI(gh)가 설치되어 있다면</span>
+<span class="cmd">gh pr create</span> <span class="flag">--base</span> develop <span class="flag">--title</span> <span class="string">"feat: Early Stopping 추가"</span> <span class="flag">--body</span> <span class="string">"설명..."</span></code></pre>
+
+  <h3>6-3. 코드 리뷰 하는 법</h3>
+  <p>PR 페이지 → <strong>Files changed</strong> 탭에서 변경된 코드를 확인합니다.</p>
+
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      Files changed (3)
+    </div>
+    <div style="padding:16px;background:#0d1117;font-family:'Fira Code',monospace;font-size:0.82rem">
+      <div style="color:#8b949e;padding:4px 12px;font-weight:600;margin-bottom:4px">src/training/early_stopping.py</div>
+      <div class="review-line review-add"><div class="review-ln">10</div><div class="review-code">class EarlyStopping:</div></div>
+      <div class="review-line review-add"><div class="review-ln">11</div><div class="review-code">    def __init__(self, patience=5):</div></div>
+      <div class="review-line review-add"><div class="review-ln">12</div><div class="review-code">        self.patience = patience</div></div>
+      <div class="review-line review-add"><div class="review-ln">13</div><div class="review-code">        self.counter = 0</div></div>
+      <div class="review-line review-add" style="position:relative"><div class="review-ln">14</div><div class="review-code">        self.best_loss = None</div>
+        <span style="position:absolute;right:12px;top:2px;background:#1f6feb;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;cursor:pointer">💬 클릭해서 코멘트!</span>
+      </div>
+    </div>
+    <div style="padding:16px;background:#f6f8fa;border-top:1px solid #d0d7de">
+      <div style="background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:14px">
+        <div style="font-size:0.88rem;color:#1f2328;margin-bottom:10px">best_loss 초기값을 float('inf')로 하면<br>None 체크 없이 바로 비교할 수 있을 것 같아요!</div>
+        <div style="display:flex;gap:16px;margin-bottom:10px;font-size:0.85rem">
+          <label style="display:flex;align-items:center;gap:4px"><div class="mock-radio-dot"></div> Comment</label>
+          <label style="display:flex;align-items:center;gap:4px"><div class="mock-radio-dot active"></div> Request changes</label>
+          <label style="display:flex;align-items:center;gap:4px"><div class="mock-radio-dot"></div> Approve</label>
+        </div>
+        <span class="mock-btn mock-btn-green" style="padding:6px 16px;font-size:0.82rem">Submit review</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">리뷰 옵션 설명</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>옵션</th><th>의미</th><th>언제 사용?</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">Comment</span></td><td>일반 의견</td><td>가벼운 질문이나 제안</td></tr>
+        <tr><td><span class="badge badge-red">Request changes</span></td><td>수정 요청</td><td>반드시 고쳐야 할 문제 발견 시</td></tr>
+        <tr><td><span class="badge badge-green">Approve</span></td><td>승인</td><td>문제없이 합쳐도 될 때</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6-4. PR 머지 (합치기)</h3>
+  <p>리뷰어가 <strong>Approve</strong> 하면 머지할 수 있습니다.</p>
+
+  <div class="mock-ui">
+    <div class="mock-titlebar">
+      <div class="mock-dots"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div></div>
+      Merge pull request
+    </div>
+    <div class="mock-body">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;color:#1a7f37;font-weight:600;font-size:0.9rem">✅ 1 approving review</div>
+        <div style="display:flex;align-items:center;gap:8px;color:#1a7f37;font-weight:600;font-size:0.9rem">✅ All checks passed</div>
+      </div>
+      <div style="border:2px solid #1a7f37;border-radius:10px;overflow:hidden;max-width:320px">
+        <div style="background:#2da44e;color:#fff;padding:12px 16px;font-weight:700;font-size:0.92rem;display:flex;align-items:center;justify-content:space-between">
+          Squash and merge ▾
+        </div>
+        <div style="padding:10px 16px;font-size:0.82rem;color:#57606a;background:#f6f8fa">
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px"><div class="mock-radio-dot active" style="width:12px;height:12px"></div> <strong>Squash and merge</strong> <span class="badge badge-green" style="font-size:0.65rem;padding:2px 6px">추천!</span></div>
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px"><div class="mock-radio-dot" style="width:12px;height:12px"></div> Create a merge commit</div>
+          <div style="display:flex;align-items:center;gap:4px"><div class="mock-radio-dot" style="width:12px;height:12px"></div> Rebase and merge</div>
+        </div>
+      </div>
+      <div class="mock-checkbox" style="margin-top:12px"><div class="mock-check">✓</div> Delete branch after merge</div>
+    </div>
+  </div>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div><strong>Squash and merge</strong>를 추천합니다! 여러 개의 작은 커밋이 하나로 합쳐져서 이력이 깔끔해집니다.</div>
+  </div>
+
+  <h3>6-5. PR 전체 흐름 요약</h3>
+  <div class="diagram-box">
+    <div class="flow-row">
+      <div class="flow-box flow-cyan">
+        Push
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-blue">
+        PR 생성
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-purple">
+        코드 리뷰
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-orange">
+        승인
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box flow-green" style="background:#bbf7d0;border-color:#22c55e">
+        머지 ✓
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:0.82rem;color:#6b7280">
+      수정 요청을 받으면 → 코드 수정 후 다시 Push → 리뷰 재진행
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 7 ==================== -->
+<section class="section" id="s7">
+  <div class="section-header">
+    <div class="section-number">7</div>
+    <h2>충돌(Conflict) 해결하기</h2>
+  </div>
+
+  <h3>7-1. 충돌은 왜 발생하나?</h3>
+  <p>두 사람이 <strong>같은 파일의 같은 줄</strong>을 다르게 수정하면 Git이 어느 쪽을 선택해야 할지 모릅니다.</p>
+
+  <div class="diagram-box">
+    <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:16px">
+      <div style="background:#dbeafe;border:2px solid #93c5fd;border-radius:12px;padding:16px 24px;text-align:center">
+        <div style="font-weight:700;margin-bottom:4px">팀원A가 수정</div>
+        <code style="background:#1e40af;color:#fff">learning_rate = 0.001</code>
+      </div>
+      <div style="background:#fce7f3;border:2px solid #f9a8d4;border-radius:12px;padding:16px 24px;text-align:center">
+        <div style="font-weight:700;margin-bottom:4px">팀원B가 수정</div>
+        <code style="background:#9d174d;color:#fff">learning_rate = 0.01</code>
+      </div>
+    </div>
+    <div style="font-size:2rem">↓</div>
+    <div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:12px;padding:16px 24px;display:inline-block;margin-top:8px">
+      <span style="font-size:1.2rem;font-weight:700;color:#991b1b">⚠️ CONFLICT! — Git: "둘 중 뭘 써야 하지?!"</span>
+    </div>
+  </div>
+
+  <h3>7-2. 충돌 해결 순서</h3>
+  <pre><code><span class="comment"># 1) develop 최신 내용을 내 브랜치에 합치기 시도</span>
+<span class="cmd">git merge</span> develop
+
+<span class="comment"># 2) 충돌 발생 시 이런 메시지가 나옴</span>
+<span class="output"># CONFLICT (content): Merge conflict in src/config.py</span>
+<span class="output"># Automatic merge failed; fix conflicts and then commit the result.</span></code></pre>
+
+  <p>충돌이 발생한 파일을 열면 이렇게 표시됩니다:</p>
+
+  <div class="conflict-code">
+    <span style="color:#8b949e"># src/config.py</span><br><br>
+    <span class="conflict-marker"><<<<<<< HEAD (내 브랜치의 코드)</span>
+    <span class="conflict-mine">learning_rate = 0.001</span>
+    <span class="conflict-marker">=======</span>
+    <span class="conflict-theirs">learning_rate = 0.01</span>
+    <span class="conflict-marker">>>>>>>> develop (develop 브랜치의 코드)</span>
+  </div>
+
+  <p><strong>해결 방법</strong>: 둘 중 하나를 선택하거나, 합쳐서 수정합니다.</p>
+
+  <pre><code><span class="comment"># 수정 후 (팀원과 상의하여 결정)</span>
+learning_rate = 0.001  <span class="comment"># 팀 회의에서 결정한 값</span></code></pre>
+
+  <div class="info-box info-danger">
+    <span class="icon">🚨</span>
+    <div><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> 표시를 <strong>모두 제거</strong>해야 합니다!</div>
+  </div>
+
+  <pre><code><span class="comment"># 3) 수정 완료 후</span>
+<span class="cmd">git add</span> src/config.py
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="string">"fix: config.py 충돌 해결 (learning_rate 값 통일)"</span></code></pre>
+
+  <h3>7-3. 충돌 예방 팁</h3>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:16px 0">
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:6px">🌅</div>
+      <div style="font-weight:700;font-size:0.9rem">매일 아침 pull</div>
+      <div style="font-size:0.8rem;color:#6b7280">develop의 최신 코드를 받기</div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:6px">📦</div>
+      <div style="font-weight:700;font-size:0.9rem">작은 단위로 자주 PR</div>
+      <div style="font-size:0.8rem;color:#6b7280">큰 변경은 충돌 위험 증가</div>
+    </div>
+    <div style="background:#fefce8;border:1px solid #fef08a;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:6px">🗂️</div>
+      <div style="font-weight:700;font-size:0.9rem">파일별 역할 분담</div>
+      <div style="font-size:0.8rem;color:#6b7280">같은 파일 동시 수정 방지</div>
+    </div>
+    <div style="background:#fdf2f8;border:1px solid #fbcfe8;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:6px">💬</div>
+      <div style="font-weight:700;font-size:0.9rem">작업 전 공유</div>
+      <div style="font-size:0.8rem;color:#6b7280">"OO 파일 수정합니다" 알리기</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 8 ==================== -->
+<section class="section" id="s8">
+  <div class="section-header">
+    <div class="section-number">8</div>
+    <h2>팀 협업 규칙 (컨벤션)</h2>
+  </div>
+
+  <h3>8-1. 커밋 메시지 규칙</h3>
+  <p>일관된 커밋 메시지는 나중에 이력을 찾기 쉽게 해줍니다.</p>
+
+  <div style="background:#0d1117;border-radius:12px;padding:20px 24px;color:#e6edf3;font-family:'Fira Code',monospace;font-size:0.9rem;margin:12px 0;border:1px solid #21262d">
+    <span style="color:#8b949e">&lt;타입&gt;</span>: <span style="color:#8b949e">&lt;제목&gt;</span>
+  </div>
+
+  <div class="commit-tags">
+    <span class="commit-tag ct-feat">feat</span>
+    <span class="commit-tag ct-fix">fix</span>
+    <span class="commit-tag ct-docs">docs</span>
+    <span class="commit-tag ct-style">style</span>
+    <span class="commit-tag ct-refactor">refactor</span>
+    <span class="commit-tag ct-test">test</span>
+    <span class="commit-tag ct-chore">chore</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>타입</th><th>의미</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><span class="commit-tag ct-feat" style="font-size:0.75rem;padding:3px 10px">feat</span></td><td>새로운 기능</td><td><code>feat: 로그인 API 구현</code></td></tr>
+        <tr><td><span class="commit-tag ct-fix" style="font-size:0.75rem;padding:3px 10px">fix</span></td><td>버그 수정</td><td><code>fix: 학습 시 메모리 누수 해결</code></td></tr>
+        <tr><td><span class="commit-tag ct-docs" style="font-size:0.75rem;padding:3px 10px">docs</span></td><td>문서 변경</td><td><code>docs: README에 설치 방법 추가</code></td></tr>
+        <tr><td><span class="commit-tag ct-style" style="font-size:0.75rem;padding:3px 10px">style</span></td><td>코드 포맷팅</td><td><code>style: 들여쓰기 통일</code></td></tr>
+        <tr><td><span class="commit-tag ct-refactor" style="font-size:0.75rem;padding:3px 10px">refactor</span></td><td>리팩토링</td><td><code>refactor: 데이터 로더 구조 개선</code></td></tr>
+        <tr><td><span class="commit-tag ct-test" style="font-size:0.75rem;padding:3px 10px">test</span></td><td>테스트 추가</td><td><code>test: 모델 정확도 테스트 추가</code></td></tr>
+        <tr><td><span class="commit-tag ct-chore" style="font-size:0.75rem;padding:3px 10px">chore</span></td><td>설정, 빌드</td><td><code>chore: requirements.txt 업데이트</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="compare-grid" style="margin-top:20px">
+    <div class="compare-card compare-bad">
+      <div class="compare-icon">❌</div>
+      <div class="compare-title" style="color:#991b1b">나쁜 예</div>
+      <div class="compare-desc" style="font-family:monospace;font-size:0.85rem">
+        "수정"<br>"update"<br>"asdfasdf"
+      </div>
+    </div>
+    <div class="compare-card compare-good">
+      <div class="compare-icon">✅</div>
+      <div class="compare-title" style="color:#166534">좋은 예</div>
+      <div class="compare-desc" style="font-family:monospace;font-size:0.85rem">
+        "feat: 사용자 회원가입 폼 구현"<br>
+        "fix: 이미지 업로드 시 확장자 검증 누락 수정"
+      </div>
+    </div>
+  </div>
+
+  <h3>8-2. 브랜치 이름 규칙</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>패턴</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><code>feature/기능명</code></td><td><code>feature/login-page</code></td></tr>
+        <tr><td><code>fix/버그설명</code></td><td><code>fix/memory-leak</code></td></tr>
+        <tr><td><code>docs/문서내용</code></td><td><code>docs/api-documentation</code></td></tr>
+        <tr><td><code>refactor/대상</code></td><td><code>refactor/data-loader</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8-3. PR 규칙</h3>
+  <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:2px solid #bfdbfe;border-radius:14px;padding:24px;margin:16px 0">
+    <div style="font-weight:800;font-size:1.05rem;margin-bottom:16px;color:#1e3a5f">📋 우리 팀의 PR 규칙</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <span style="background:#3b82f6;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">1</span>
+        <div><strong>PR 크기</strong>: 한 PR에 변경 300줄 이하 권장 (너무 크면 리뷰가 어렵습니다)</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <span style="background:#3b82f6;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">2</span>
+        <div><strong>리뷰어</strong>: 최소 1명 이상 Approve 필요</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <span style="background:#3b82f6;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">3</span>
+        <div><strong>PR 설명에 반드시 포함</strong>: 무엇을 / 왜 변경했는지 / 어떻게 테스트했는지</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <span style="background:#3b82f6;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">4</span>
+        <div><strong>리뷰 응답 시간</strong>: 24시간 이내</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <span style="background:#3b82f6;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">5</span>
+        <div><strong>본인 PR은 본인이 머지</strong> (리뷰 승인 받은 후)</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>8-4. 프로젝트 폴더 구조 (AI 프로젝트 예시)</h3>
+  <div class="folder-tree">
+<span class="ft-folder">ai-project/</span>
+├── <span class="ft-file">README.md</span>                  <span class="ft-comment"># 프로젝트 소개 및 시작 가이드</span>
+├── <span class="ft-file">requirements.txt</span>           <span class="ft-comment"># Python 패키지 목록</span>
+├── <span class="ft-file">.gitignore</span>                 <span class="ft-comment"># Git 제외 파일 목록</span>
+├── <span class="ft-file">.env.example</span>               <span class="ft-comment"># 환경 변수 예시 (.env는 Git 제외!)</span>
+│
+├── <span class="ft-folder">data/</span>                      <span class="ft-comment"># 데이터 폴더 (대용량은 Git 제외)</span>
+│   ├── <span class="ft-folder">raw/</span>                   <span class="ft-comment"># 원본 데이터</span>
+│   └── <span class="ft-folder">processed/</span>             <span class="ft-comment"># 전처리된 데이터</span>
+│
+├── <span class="ft-folder">src/</span>                       <span class="ft-comment"># 소스 코드</span>
+│   ├── <span class="ft-folder">data/</span>                  <span class="ft-comment"># 데이터 처리 (팀원A)</span>
+│   │   ├── <span class="ft-file">preprocessing.py</span>
+│   │   └── <span class="ft-file">augmentation.py</span>
+│   ├── <span class="ft-folder">models/</span>                <span class="ft-comment"># 모델 정의 (팀원B)</span>
+│   │   ├── <span class="ft-file">base_model.py</span>
+│   │   └── <span class="ft-file">train.py</span>
+│   ├── <span class="ft-folder">api/</span>                   <span class="ft-comment"># API 서버 (팀원C)</span>
+│   │   ├── <span class="ft-file">routes.py</span>
+│   │   └── <span class="ft-file">middleware.py</span>
+│   └── <span class="ft-folder">utils/</span>                 <span class="ft-comment"># 공통 유틸리티</span>
+│       └── <span class="ft-file">logger.py</span>
+│
+├── <span class="ft-folder">tests/</span>                     <span class="ft-comment"># 테스트 코드</span>
+│   ├── <span class="ft-file">test_data.py</span>
+│   └── <span class="ft-file">test_model.py</span>
+│
+├── <span class="ft-folder">notebooks/</span>                 <span class="ft-comment"># Jupyter 노트북 (실험용)</span>
+│   └── <span class="ft-file">exploration.ipynb</span>
+│
+└── <span class="ft-folder">configs/</span>                   <span class="ft-comment"># 설정 파일</span>
+    ├── <span class="ft-file">model_config.yaml</span>
+    └── <span class="ft-file">server_config.yaml</span>
+  </div>
+
+  <h3>8-5. .gitignore 필수 항목</h3>
+  <pre><code><span class="comment"># Python</span>
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+<span class="comment"># 환경 변수 (API 키 등 민감 정보!)</span>
+.env
+
+<span class="comment"># 데이터 (대용량)</span>
+data/raw/
+*.csv
+*.parquet
+
+<span class="comment"># 모델 파일 (대용량)</span>
+*.pt
+*.pth
+*.h5
+*.onnx
+models/checkpoints/
+
+<span class="comment"># IDE</span>
+.vscode/
+.idea/
+
+<span class="comment"># OS</span>
+.DS_Store
+Thumbs.db
+
+<span class="comment"># Jupyter</span>
+.ipynb_checkpoints/</code></pre>
+
+  <div class="info-box info-danger">
+    <span class="icon">🚨</span>
+    <div>API 키, 비밀번호 등 민감 정보는 <strong>절대</strong> Git에 올리지 마세요! <code>.env</code> 파일에 저장하고, <code>.env.example</code>에는 형식만 올립니다.</div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 9 ==================== -->
+<section class="section" id="s9">
+  <div class="section-header">
+    <div class="section-number">9</div>
+    <h2>자주 발생하는 문제와 해결법</h2>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q1. "커밋 메시지를 잘못 썼어요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="comment"># 직전 커밋 메시지만 수정 (아직 push 안 했을 때)</span>
+<span class="cmd">git commit</span> <span class="flag">--amend</span> <span class="flag">-m</span> <span class="string">"feat: 올바른 커밋 메시지"</span></code></pre>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q2. "커밋하면 안 되는 파일을 커밋했어요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="comment"># .env 파일을 실수로 커밋한 경우</span>
+<span class="cmd">git rm</span> <span class="flag">--cached</span> .env
+echo ".env" >> .gitignore
+<span class="cmd">git add</span> .gitignore
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="string">"fix: .env 파일을 Git 추적에서 제거"</span></code></pre>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q3. "작업 중인데 급하게 브랜치를 바꿔야 해요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="comment"># 현재 작업을 임시 저장</span>
+<span class="cmd">git stash</span>
+
+<span class="comment"># 다른 브랜치로 이동</span>
+<span class="cmd">git checkout</span> develop
+
+<span class="comment"># 작업 후 돌아와서 임시 저장한 내용 복원</span>
+<span class="cmd">git checkout</span> feature/my-feature
+<span class="cmd">git stash pop</span></code></pre>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q4. "내 브랜치가 develop보다 너무 뒤처졌어요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="cmd">git checkout</span> feature/my-feature
+<span class="cmd">git merge</span> develop
+<span class="comment"># 충돌이 있으면 7장의 방법으로 해결</span></code></pre>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q5. "push가 rejected 됐어요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="comment"># 원격에 내 로컬에 없는 커밋이 있을 때 발생</span>
+<span class="comment"># 먼저 pull로 최신 내용을 받은 뒤 다시 push</span>
+<span class="cmd">git pull</span> origin feature/my-feature
+<span class="cmd">git push</span> origin feature/my-feature</code></pre>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q6. "방금 한 커밋을 취소하고 싶어요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="comment"># 커밋은 취소하되, 변경한 코드는 유지 (안전한 방법)</span>
+<span class="cmd">git reset</span> <span class="flag">--soft</span> HEAD~1</code></pre>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>Q7. "다른 팀원의 브랜치를 내 컴퓨터에서 보고 싶어요"</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="faq-a">
+      <pre><code><span class="cmd">git fetch</span> origin
+<span class="cmd">git checkout</span> feature/팀원의-브랜치</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 10 ==================== -->
+<section class="section" id="s10">
+  <div class="section-header">
+    <div class="section-number">10</div>
+    <h2>명령어 치트시트</h2>
+  </div>
+
+  <div class="cheat-group">
+    <div class="cheat-group-title">🚀 처음 시작할 때</div>
+    <div class="cheat-row"><div class="cheat-cmd">git clone git@github.com:계정/저장소.git</div><div class="cheat-desc">저장소 복제</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">cd 저장소</div><div class="cheat-desc">폴더 이동</div></div>
+  </div>
+
+  <div class="cheat-group">
+    <div class="cheat-group-title">🔄 매일 반복하는 명령어</div>
+    <div class="cheat-row"><div class="cheat-cmd">git status</div><div class="cheat-desc">현재 상태 확인 (자주 사용!)</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git pull origin develop</div><div class="cheat-desc">최신 코드 받기</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git checkout -b feature/기능명</div><div class="cheat-desc">새 브랜치 만들기</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git add 파일명</div><div class="cheat-desc">파일 스테이징</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git commit -m "feat: 설명"</div><div class="cheat-desc">커밋</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git push origin feature/기능명</div><div class="cheat-desc">GitHub에 올리기</div></div>
+  </div>
+
+  <div class="cheat-group">
+    <div class="cheat-group-title">🌿 브랜치 관련</div>
+    <div class="cheat-row"><div class="cheat-cmd">git branch</div><div class="cheat-desc">브랜치 목록 보기</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git checkout 브랜치명</div><div class="cheat-desc">브랜치 이동</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git checkout -b 새브랜치명</div><div class="cheat-desc">새 브랜치 만들고 이동</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git branch -d 브랜치명</div><div class="cheat-desc">브랜치 삭제</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git merge develop</div><div class="cheat-desc">develop을 현재 브랜치에 합치기</div></div>
+  </div>
+
+  <div class="cheat-group">
+    <div class="cheat-group-title">🔍 확인 / 조회</div>
+    <div class="cheat-row"><div class="cheat-cmd">git log --oneline</div><div class="cheat-desc">커밋 이력 한 줄씩 보기</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git log --oneline --graph</div><div class="cheat-desc">브랜치 그래프로 보기</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git diff</div><div class="cheat-desc">변경 내용 확인</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git diff --staged</div><div class="cheat-desc">스테이징된 변경 확인</div></div>
+  </div>
+
+  <div class="cheat-group">
+    <div class="cheat-group-title">⏪ 되돌리기 (주의해서 사용)</div>
+    <div class="cheat-row"><div class="cheat-cmd">git stash</div><div class="cheat-desc">작업 임시 저장</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git stash pop</div><div class="cheat-desc">임시 저장 복원</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git reset --soft HEAD~1</div><div class="cheat-desc">마지막 커밋 취소 (코드 유지)</div></div>
+    <div class="cheat-row"><div class="cheat-cmd">git checkout -- 파일명</div><div class="cheat-desc">파일 수정 취소 (저장 전)</div></div>
+  </div>
+</section>
+
+<!-- ==================== CHECKLIST ==================== -->
+<section class="section" id="checklist">
+  <div class="section-header">
+    <div class="section-number" style="background:linear-gradient(135deg,#10b981,#059669)">✓</div>
+    <h2>빠른 시작 체크리스트</h2>
+  </div>
+
+  <p>아래 체크리스트를 팀원 모두가 완료하면 협업 준비 끝! (클릭하여 체크하세요)</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:24px;margin-top:20px">
+    <div>
+      <div class="checklist-title">👤 팀원 개인 체크리스트</div>
+      <div class="checklist">
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>Git 설치 완료</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>GitHub 계정 생성</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>git config (이름, 이메일) 설정</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>SSH 키 생성 및 GitHub에 등록</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>저장소 clone 완료</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>테스트 브랜치 만들어보기</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>테스트 커밋 &amp; push 해보기</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>PR 만들어보기</div>
+      </div>
+    </div>
+    <div>
+      <div class="checklist-title">👑 팀 리더 체크리스트</div>
+      <div class="checklist">
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>GitHub 저장소 생성</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>팀원 7명 초대 완료</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>develop 브랜치 생성</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>main, develop 브랜치 보호 규칙 설정</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>.gitignore 설정</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>README.md 작성</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>폴더 구조 초기 설정</div>
+        <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box"></div>팀 컨벤션 문서 공유</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TOOLS ==================== -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-number" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">+</div>
+    <h2>유용한 도구</h2>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">🖥️</div>
+      <div style="font-weight:700;margin-bottom:4px">GitHub Desktop</div>
+      <div style="font-size:0.82rem;color:#6b7280">Git을 GUI로 사용<br>명령어 없이 클릭으로 조작</div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">📝</div>
+      <div style="font-weight:700;margin-bottom:4px">VS Code</div>
+      <div style="font-size:0.82rem;color:#6b7280">에디터 + Git 통합<br>Source Control 패널 제공</div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">🔍</div>
+      <div style="font-weight:700;margin-bottom:4px">GitLens</div>
+      <div style="font-size:0.82rem;color:#6b7280">VS Code 확장<br>코드에서 바로 Git 이력 확인</div>
+    </div>
+  </div>
+
+  <div class="info-box info-tip" style="margin-top:20px">
+    <span class="icon">💡</span>
+    <div><strong>VS Code</strong>를 사용하면 터미널 명령어 없이도 왼쪽 사이드바의 Source Control 패널에서 Git 작업을 할 수 있습니다. 처음에 명령어가 어려우면 VS Code의 GUI를 활용하세요!</div>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <p style="font-size:1.1rem;font-weight:700;color:#374151;margin-bottom:8px">이 가이드에 대한 질문이 있으면 팀 채팅방에서 언제든 물어보세요!</p>
+  <p>처음엔 누구나 헷갈립니다. 실수해도 괜찮아요 — Git은 되돌릴 수 있으니까요.</p>
+</footer>
+
+<!-- ==================== JS ==================== -->
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  // Back to top button
+  document.getElementById('backToTop').classList.toggle('visible', h.scrollTop > 400);
+});
+</script>
+
+</body>
+</html>
