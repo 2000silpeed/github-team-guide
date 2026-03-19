@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub 협업 실전 시나리오 — AI 챗봇 만들기</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;font-size:16px}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#1a202c;line-height:1.8;overflow-x:hidden}
+
+  /* ===== Hero ===== */
+  .hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 40%,#0f766e 100%);color:#fff;padding:70px 20px 50px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(20,184,166,.1) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(56,189,248,.08) 0%,transparent 50%);animation:hf 20s ease-in-out infinite}
+  @keyframes hf{0%,100%{transform:translate(0,0)}50%{transform:translate(-2%,2%)}}
+  .hero-c{position:relative;z-index:1;max-width:720px;margin:0 auto}
+  .hero-icon{width:80px;height:80px;background:linear-gradient(135deg,#14b8a6,#0ea5e9);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:40px;box-shadow:0 8px 32px rgba(20,184,166,.3)}
+  .hero h1{font-size:2.2rem;font-weight:800;margin-bottom:10px;letter-spacing:-.5px}
+  .hero p{font-size:1.05rem;color:#94a3b8;max-width:540px;margin:0 auto}
+  .hero-badges{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+  .hero-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 14px;font-size:.82rem;color:#94a3b8}
+
+  /* ===== Container ===== */
+  .container{max-width:920px;margin:0 auto;padding:0 20px 60px}
+
+  /* ===== Day Header ===== */
+  .day-header{display:flex;align-items:center;gap:16px;margin:48px 0 24px;padding:0 4px}
+  .day-num{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;flex-direction:column;line-height:1.1}
+  .day-num span{font-size:.65rem;font-weight:600;opacity:.8}
+  .day-info h2{font-size:1.35rem;font-weight:800;color:#0f172a}
+  .day-info p{font-size:.88rem;color:#64748b;margin-top:2px}
+
+  /* ===== Section Card ===== */
+  .card{background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,.05);padding:32px;margin-bottom:20px;border:1px solid #e5e7eb}
+
+  /* ===== Person Tag ===== */
+  .person-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;font-size:.82rem;font-weight:700;margin-bottom:16px}
+  .p-leader{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+  .p-a{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+  .p-b{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd}
+  .p-c{background:#dcfce7;color:#166534;border:1px solid #86efac}
+  .p-d{background:#ffe4e6;color:#9f1239;border:1px solid #fda4af}
+
+  /* ===== Sub-heading ===== */
+  h3{font-size:1.05rem;font-weight:700;color:#1e3a5f;margin:24px 0 12px;padding-left:14px;border-left:4px solid #14b8a6}
+  h3:first-of-type{margin-top:0}
+  h4{font-size:.95rem;font-weight:700;color:#374151;margin:16px 0 8px}
+  p{margin-bottom:10px;color:#374151}
+
+  /* ===== Code ===== */
+  pre{background:#0d1117;color:#e6edf3;border-radius:12px;padding:18px 22px;overflow-x:auto;margin:10px 0 16px;font-size:.84rem;line-height:1.7;font-family:'Fira Code','Cascadia Code','JetBrains Mono',monospace;border:1px solid #21262d;position:relative}
+  pre .cm{color:#8b949e} pre .cmd{color:#79c0ff} pre .fl{color:#d2a8ff} pre .str{color:#a5d6ff} pre .out{color:#7ee787} pre .kw{color:#ff7b72} pre .fn{color:#d2a8ff} pre .var{color:#ffa657}
+  code{background:#f1f5f9;color:#e11d48;padding:2px 7px;border-radius:5px;font-size:.86em;font-family:'Fira Code','Cascadia Code',monospace}
+  pre code{background:none;color:inherit;padding:0;border-radius:0}
+
+  /* ===== Info Boxes ===== */
+  .info-box{border-radius:12px;padding:16px 20px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;font-size:.9rem;line-height:1.6}
+  .info-box .icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+  .info-tip{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+  .info-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+  .info-danger{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+  .info-note{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+
+  /* ===== Mock UI ===== */
+  .mock-ui{background:#fff;border:2px solid #d1d5db;border-radius:12px;overflow:hidden;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .mock-tb{background:#f6f8fa;border-bottom:1px solid #d1d5db;padding:10px 16px;display:flex;align-items:center;gap:8px;font-size:.82rem;color:#57606a;font-weight:600}
+  .mock-dots{display:flex;gap:6px}
+  .mock-dot{width:12px;height:12px;border-radius:50%}
+  .dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+  .mock-body{padding:20px}
+  .mock-field{margin-bottom:14px}
+  .mock-label{font-size:.8rem;font-weight:600;color:#57606a;margin-bottom:4px}
+  .mock-input{background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:9px 12px;width:100%;font-size:.88rem;color:#1f2328}
+  .mock-btn{display:inline-block;padding:8px 20px;border-radius:8px;font-weight:600;font-size:.85rem;cursor:default}
+  .btn-green{background:#2da44e;color:#fff}
+  .btn-blue{background:#2563eb;color:#fff}
+
+  /* ===== Badge ===== */
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:14px;font-size:.75rem;font-weight:600}
+  .bg-green{background:#dcfce7;color:#166534}.bg-blue{background:#dbeafe;color:#1e40af}.bg-purple{background:#ede9fe;color:#5b21b6}.bg-yellow{background:#fef9c3;color:#854d0e}.bg-red{background:#fee2e2;color:#991b1b}.bg-gray{background:#f3f4f6;color:#374151}.bg-cyan{background:#ecfeff;color:#155e75}
+
+  /* ===== Flow Diagram ===== */
+  .diagram-box{background:linear-gradient(135deg,#fafbff,#f0f4ff);border:2px solid #dbeafe;border-radius:16px;padding:28px;margin:16px 0;text-align:center;overflow-x:auto}
+  .diagram-title{font-size:.82rem;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;font-weight:600}
+  .flow-row{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin:10px 0}
+  .flow-box{padding:12px 18px;border-radius:12px;font-weight:700;font-size:.85rem;white-space:nowrap;text-align:center;min-width:100px}
+  .flow-arrow{font-size:1.3rem;color:#9ca3af;padding:0 6px;flex-shrink:0}
+  .flow-arrow-down{display:flex;justify-content:center;padding:4px 0;font-size:1.3rem;color:#9ca3af}
+  .fb{background:#dbeafe;color:#1e40af;border:2px solid #93c5fd}
+  .fg{background:#dcfce7;color:#166534;border:2px solid #86efac}
+  .fp{background:#ede9fe;color:#5b21b6;border:2px solid #c4b5fd}
+  .fo{background:#fff7ed;color:#9a3412;border:2px solid #fdba74}
+  .fr{background:#fef2f2;color:#991b1b;border:2px solid #fca5a5}
+  .fc{background:#ecfeff;color:#155e75;border:2px solid #67e8f9}
+  .fgr{background:#f3f4f6;color:#374151;border:2px solid #d1d5db}
+  .ft{background:#f0fdf4;color:#14532d;border:2px solid #4ade80}
+  .flow-cmd{font-size:.7rem;color:#6b7280;margin-top:3px;font-weight:500;font-family:'Fira Code',monospace}
+
+  /* ===== Branch Diagram ===== */
+  .branch-diagram{background:#0d1117;border-radius:16px;padding:28px;margin:16px 0;overflow-x:auto;border:1px solid #21262d}
+  .bl{display:flex;align-items:center;gap:8px;padding:5px 0;font-family:'Fira Code',monospace;font-size:.82rem;white-space:nowrap}
+  .bdot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid}
+  .bcon{width:24px;height:2px;flex-shrink:0}
+  .bm{background:#3fb950;border-color:#3fb950}.bcm{background:#3fb950}
+  .bd{background:#58a6ff;border-color:#58a6ff}.bcd{background:#58a6ff}
+  .bf{background:#d2a8ff;border-color:#d2a8ff}.bcf{background:#d2a8ff}
+  .bfr{background:#ffa657;border-color:#ffa657}.bcfr{background:#ffa657}
+  .btag{padding:3px 12px;border-radius:16px;font-size:.78rem;font-weight:600}
+  .btm{background:rgba(63,185,80,.15);color:#3fb950}
+  .btd{background:rgba(88,166,255,.15);color:#58a6ff}
+  .btf{background:rgba(210,168,255,.15);color:#d2a8ff}
+  .btfr{background:rgba(255,166,87,.15);color:#ffa657}
+  .bdesc{color:#8b949e;margin-left:8px}
+  .bi1{padding-left:36px}.bi2{padding-left:72px}
+
+  /* ===== Timeline ===== */
+  .timeline{position:relative;padding-left:32px;margin:16px 0}
+  .timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:#e2e8f0}
+  .tl-item{position:relative;margin-bottom:20px}
+  .tl-item::before{content:'';position:absolute;left:-25px;top:8px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px #cbd5e1}
+  .tl-item.tl-commit::before{background:#3b82f6;box-shadow:0 0 0 2px #3b82f6}
+  .tl-item.tl-push::before{background:#8b5cf6;box-shadow:0 0 0 2px #8b5cf6}
+  .tl-item.tl-pr::before{background:#10b981;box-shadow:0 0 0 2px #10b981}
+  .tl-item.tl-merge::before{background:#f59e0b;box-shadow:0 0 0 2px #f59e0b}
+  .tl-item.tl-conflict::before{background:#ef4444;box-shadow:0 0 0 2px #ef4444}
+  .tl-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+  .tl-commit .tl-label{color:#3b82f6}
+  .tl-push .tl-label{color:#8b5cf6}
+  .tl-pr .tl-label{color:#10b981}
+  .tl-merge .tl-label{color:#f59e0b}
+  .tl-conflict .tl-label{color:#ef4444}
+
+  /* ===== File Tree ===== */
+  .ftree{background:#0d1117;color:#e6edf3;border-radius:12px;padding:20px;font-family:'Fira Code',monospace;font-size:.8rem;line-height:1.8;overflow-x:auto;border:1px solid #21262d}
+  .ff{color:#79c0ff;font-weight:600}.fi{color:#e6edf3}.fcc{color:#8b949e}
+
+  /* ===== Conflict ===== */
+  .conflict-code{background:#0d1117;border-radius:12px;padding:18px 22px;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.7;overflow-x:auto;border:1px solid #21262d;margin:10px 0}
+  .cmine{background:rgba(63,185,80,.12);color:#7ee787;display:block;padding:0 8px;margin:0 -8px}
+  .ctheirs{background:rgba(248,81,73,.12);color:#ffa198;display:block;padding:0 8px;margin:0 -8px}
+  .cmark{color:#8b949e;display:block;padding:0 8px;margin:0 -8px}
+
+  /* ===== Review lines ===== */
+  .rl{display:flex;font-family:'Fira Code',monospace;font-size:.8rem}
+  .rln{color:#484f58;padding:2px 10px;text-align:right;min-width:36px;user-select:none;border-right:1px solid #21262d}
+  .rc{padding:2px 10px;flex:1}
+  .radd{background:rgba(63,185,80,.12)}.radd .rc{color:#7ee787}.radd .rc::before{content:'+ ';color:#3fb950}
+  .rdel{background:rgba(248,81,73,.12)}.rdel .rc{color:#ffa198}.rdel .rc::before{content:'- ';color:#f85149}
+  .rnorm .rc{color:#8b949e}
+
+  /* ===== Tables ===== */
+  .tw{overflow-x:auto;margin:14px 0;border-radius:12px;border:1px solid #e5e7eb}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  thead{background:linear-gradient(135deg,#134e4a,#0f766e);color:#fff}
+  th{padding:12px 16px;text-align:left;font-weight:600;white-space:nowrap}
+  td{padding:10px 16px;border-bottom:1px solid #f0f0f0}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:#f9fafb}
+
+  /* ===== Scenario Header ===== */
+  .scenario-intro{background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,.05);padding:32px;margin:-24px auto 32px;position:relative;z-index:2;border:1px solid #e5e7eb;max-width:920px}
+
+  /* ===== Compare ===== */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .compare-card{border-radius:12px;padding:20px;text-align:center}
+  .compare-bad{background:#fef2f2;border:2px solid #fecaca}
+  .compare-good{background:#ecfdf5;border:2px solid #a7f3d0}
+
+  /* ===== Merge animation ===== */
+  .merge-visual{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0;flex-wrap:wrap}
+  .mv-branch{padding:8px 16px;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Fira Code',monospace}
+
+  /* ===== Responsive ===== */
+  @media(max-width:640px){
+    .hero h1{font-size:1.5rem}
+    .card{padding:20px 16px}
+    .compare-grid{grid-template-columns:1fr}
+    .flow-row{flex-direction:column;gap:0}
+    .flow-arrow{transform:rotate(90deg);padding:4px 0}
+  }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#f1f1f1;border-radius:4px}::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:4px}
+
+  /* ===== Progress ===== */
+  .progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#14b8a6,#0ea5e9,#8b5cf6);z-index:1000;transition:width .1s}
+  .back-to-top{position:fixed;bottom:30px;right:30px;width:48px;height:48px;background:linear-gradient(135deg,#14b8a6,#0ea5e9);color:#fff;border:none;border-radius:50%;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(20,184,166,.3);opacity:0;transform:translateY(20px);transition:all .3s;z-index:100}
+  .back-to-top.visible{opacity:1;transform:translateY(0)}
+
+  .footer{text-align:center;padding:40px 20px;color:#9ca3af;font-size:.85rem}
+
+  /* ===== Step Connector ===== */
+  .step-connector{display:flex;align-items:center;justify-content:center;padding:8px 0;color:#cbd5e1;font-size:1.4rem}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0})">↑</button>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="hero-c">
+    <div class="hero-icon">💬</div>
+    <h1>GitHub 협업 실전 시나리오</h1>
+    <p>4명의 팀원이 AI 챗봇을 만드는 과정을 Day 1부터 끝까지 따라가 봅니다</p>
+    <div class="hero-badges">
+      <span class="hero-badge">실전 시나리오</span>
+      <span class="hero-badge">4인 팀</span>
+      <span class="hero-badge">OpenAI API 챗봇</span>
+      <span class="hero-badge">Day 1 ~ Day 5</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== SCENARIO INTRO ===== -->
+<div class="scenario-intro">
+  <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:16px;color:#0f172a">프로젝트 개요</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+    <div>
+      <div style="font-size:.82rem;color:#64748b;font-weight:600;margin-bottom:6px">만들 것</div>
+      <div style="font-weight:700">OpenAI API 기반 웹 챗봇</div>
+      <div style="font-size:.85rem;color:#64748b">Flask 서버 + HTML/JS 프론트엔드</div>
+    </div>
+    <div>
+      <div style="font-size:.82rem;color:#64748b;font-weight:600;margin-bottom:6px">기간</div>
+      <div style="font-weight:700">5일 (월~금)</div>
+    </div>
+  </div>
+
+  <div style="font-size:.82rem;color:#64748b;font-weight:600;margin-bottom:8px">팀 구성</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">
+    <div style="display:flex;align-items:center;gap:8px;background:#fef3c7;border-radius:10px;padding:10px 14px;border:1px solid #fde68a">
+      <span style="font-size:1.2rem">👑</span>
+      <div><div style="font-weight:700;font-size:.88rem">민수 (팀장)</div><div style="font-size:.75rem;color:#92400e">프로젝트 세팅 + 백엔드</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;background:#dbeafe;border-radius:10px;padding:10px 14px;border:1px solid #93c5fd">
+      <span style="font-size:1.2rem">👤</span>
+      <div><div style="font-weight:700;font-size:.88rem">지연</div><div style="font-size:.75rem;color:#1e40af">OpenAI API 연동</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;background:#ede9fe;border-radius:10px;padding:10px 14px;border:1px solid #c4b5fd">
+      <span style="font-size:1.2rem">👤</span>
+      <div><div style="font-weight:700;font-size:.88rem">현우</div><div style="font-size:.75rem;color:#5b21b6">프론트엔드 (채팅 UI)</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;background:#dcfce7;border-radius:10px;padding:10px 14px;border:1px solid #86efac">
+      <span style="font-size:1.2rem">👤</span>
+      <div><div style="font-weight:700;font-size:.88rem">수빈</div><div style="font-size:.75rem;color:#166534">대화 저장 + 에러 처리</div></div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px">
+    <div style="font-size:.82rem;color:#64748b;font-weight:600;margin-bottom:8px">최종 결과물 미리보기</div>
+    <div style="background:#0d1117;border-radius:12px;padding:20px;border:1px solid #21262d;display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:center">
+      <div style="background:#1e293b;border-radius:12px;padding:20px;width:280px;color:#e2e8f0;font-size:.82rem">
+        <div style="font-weight:700;margin-bottom:12px;color:#5eead4">AI ChatBot 🤖</div>
+        <div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:6px">
+          <span style="color:#94a3b8">You:</span> 파이썬 리스트 정렬 방법 알려줘
+        </div>
+        <div style="background:#134e4a;border-radius:8px;padding:10px;margin-bottom:6px">
+          <span style="color:#5eead4">Bot:</span> sorted()나 .sort()를 사용하세요!
+        </div>
+        <div style="background:#0f172a;border-radius:8px;padding:8px;display:flex;gap:8px">
+          <div style="flex:1;background:#1e293b;border-radius:6px;padding:6px 10px;color:#64748b;font-size:.78rem">메시지 입력...</div>
+          <div style="background:#14b8a6;color:#fff;padding:6px 12px;border-radius:6px;font-size:.78rem;font-weight:700">전송</div>
+        </div>
+      </div>
+      <div style="color:#64748b;font-size:.78rem;max-width:200px">
+        <div>Flask + OpenAI API</div>
+        <div>실시간 채팅 UI</div>
+        <div>대화 기록 저장</div>
+        <div>에러 처리</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="container">
+
+<!-- ============================================================ -->
+<!--                         DAY 0                                -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#64748b,#475569)"><span>DAY</span>0</div>
+  <div class="day-info">
+    <h2>프로젝트 시작 전 준비</h2>
+    <p>모든 팀원이 Git 설치, GitHub 가입, SSH 키 등록 완료 (가이드 참고)</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="info-box info-note">
+    <span class="icon">📌</span>
+    <div>이 시나리오는 모든 팀원이 Git 설치, GitHub 가입, SSH 키 등록을 마친 상태에서 시작합니다.<br>아직 안 했다면 <strong>GITHUB_TEAM_GUIDE.html</strong>의 1장을 먼저 따라하세요.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                         DAY 1                                -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span>DAY</span>1</div>
+  <div class="day-info">
+    <h2>프로젝트 세팅 + 첫 작업 시작</h2>
+    <p>민수가 저장소를 만들고, 모든 팀원이 clone 후 각자 첫 브랜치를 생성합니다</p>
+  </div>
+</div>
+
+<!-- === 민수: 저장소 생성 === -->
+<div class="card">
+  <div class="person-tag p-leader">👑 민수 (팀장)</div>
+  <h3>Step 1. GitHub 저장소 생성</h3>
+
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>Create a new repository</div>
+    <div class="mock-body">
+      <div class="mock-field">
+        <div class="mock-label">Repository name</div>
+        <div class="mock-input">ai-chatbot</div>
+      </div>
+      <div class="mock-field">
+        <div class="mock-label">Description</div>
+        <div class="mock-input">OpenAI API 기반 AI 챗봇 프로젝트</div>
+      </div>
+      <div style="margin-bottom:12px;font-size:.88rem">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><div style="width:14px;height:14px;border-radius:50%;border:2px solid #2563eb;display:flex;align-items:center;justify-content:center"><div style="width:6px;height:6px;border-radius:50%;background:#2563eb"></div></div> Private</div>
+      </div>
+      <div style="font-size:.88rem;margin-bottom:4px"><span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:3px;background:#2563eb;color:#fff;font-size:.65rem;font-weight:700;margin-right:4px">✓</span> Add a README file</div>
+      <div style="font-size:.88rem;margin-bottom:12px">Add .gitignore: <span style="background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:4px 8px;font-size:.82rem">Python ▾</span></div>
+      <div class="mock-btn btn-green">Create repository</div>
+    </div>
+  </div>
+
+  <h3>Step 2. 팀원 초대</h3>
+  <p>Settings → Collaborators → Add people 에서 지연, 현우, 수빈을 초대합니다.</p>
+
+  <h3>Step 3. 프로젝트 초기 구조 세팅</h3>
+  <pre><code><span class="cm"># 저장소 clone</span>
+<span class="cmd">git clone</span> git@github.com:minsu/ai-chatbot.git
+<span class="cmd">cd</span> ai-chatbot</code></pre>
+
+  <p>민수가 기본 폴더 구조와 파일들을 만듭니다:</p>
+
+  <div class="ftree">
+<span class="ff">ai-chatbot/</span>
+├── <span class="fi">README.md</span>
+├── <span class="fi">.gitignore</span>
+├── <span class="fi">.env.example</span>           <span class="fcc"># OPENAI_API_KEY=your-key-here</span>
+├── <span class="fi">requirements.txt</span>        <span class="fcc"># flask, openai, python-dotenv</span>
+├── <span class="fi">app.py</span>                  <span class="fcc"># Flask 앱 진입점 (빈 뼈대)</span>
+├── <span class="ff">static/</span>
+│   ├── <span class="fi">style.css</span>            <span class="fcc"># (빈 파일)</span>
+│   └── <span class="fi">script.js</span>            <span class="fcc"># (빈 파일)</span>
+└── <span class="ff">templates/</span>
+    └── <span class="fi">index.html</span>           <span class="fcc"># (빈 파일)</span>
+  </div>
+
+  <h4>app.py (초기 뼈대)</h4>
+  <pre><code><span class="kw">from</span> flask <span class="kw">import</span> Flask, render_template, request, jsonify
+
+app = Flask(__name__)
+
+<span class="cm"># TODO: 라우트 추가 예정</span>
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    app.run(debug=<span class="var">True</span>)</code></pre>
+
+  <h4>requirements.txt</h4>
+  <pre><code>flask==3.0.0
+openai==1.12.0
+python-dotenv==1.0.0</code></pre>
+
+  <pre><code><span class="cm"># 모든 파일을 스테이징하고 커밋</span>
+<span class="cmd">git add</span> app.py requirements.txt .env.example static/ templates/
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: 프로젝트 초기 구조 세팅"</span>
+
+<span class="cm"># develop 브랜치 생성 후 push</span>
+<span class="cmd">git checkout</span> <span class="fl">-b</span> develop
+<span class="cmd">git push</span> origin develop
+
+<span class="cm"># main에도 push</span>
+<span class="cmd">git checkout</span> main
+<span class="cmd">git push</span> origin main</code></pre>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div>초기 세팅은 팀장이 <code>main</code>에 직접 커밋해도 됩니다. 브랜치 보호 규칙은 이 세팅 후에 켜면 됩니다.</div>
+  </div>
+
+  <h3>Step 4. 브랜치 보호 규칙 설정</h3>
+  <p>Settings → Branches 에서 <code>main</code>과 <code>develop</code>에 "Require PR before merging" 활성화.</p>
+</div>
+
+<!-- === 모든 팀원: Clone === -->
+<div class="card">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+    <span class="person-tag p-a" style="margin:0">👤 지연</span>
+    <span class="person-tag p-b" style="margin:0">👤 현우</span>
+    <span class="person-tag p-c" style="margin:0">👤 수빈</span>
+  </div>
+  <h3>모든 팀원: Clone 후 작업 시작</h3>
+
+  <pre><code><span class="cm"># 각자 자기 컴퓨터에서 실행</span>
+<span class="cmd">git clone</span> git@github.com:minsu/ai-chatbot.git
+<span class="cmd">cd</span> ai-chatbot
+
+<span class="cm"># develop 브랜치로 이동</span>
+<span class="cmd">git checkout</span> develop</code></pre>
+
+  <div class="info-box info-note">
+    <span class="icon">📌</span>
+    <div>이 시점에서 4명 모두 <strong>동일한 코드</strong>를 가지고 있습니다. 이제 각자 브랜치를 만들어 작업을 시작합니다.</div>
+  </div>
+</div>
+
+<!-- === DAY 1: 각자 브랜치 생성 === -->
+<div class="card">
+  <h3>Day 1 작업 분배</h3>
+  <p>팀 채팅방에서 오늘 할 작업을 공유합니다:</p>
+
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>팀 채팅방</div>
+    <div class="mock-body" style="font-size:.88rem;display:flex;flex-direction:column;gap:10px">
+      <div><strong style="color:#92400e">민수:</strong> 저장소 세팅 완료! 각자 develop에서 브랜치 따서 작업해주세요</div>
+      <div><strong style="color:#1e40af">지연:</strong> 저 OpenAI API 연동할게요 → <code>feature/openai-api</code></div>
+      <div><strong style="color:#5b21b6">현우:</strong> 채팅 UI 만들게요 → <code>feature/chat-ui</code></div>
+      <div><strong style="color:#166534">수빈:</strong> 저는 내일부터 대화 저장 기능 할게요. 오늘은 코드 파악!</div>
+      <div><strong style="color:#92400e">민수:</strong> 저는 Flask 라우트 기본 구조 잡을게요 → <code>feature/api-routes</code></div>
+    </div>
+  </div>
+
+  <div class="branch-diagram" style="margin-top:20px">
+    <div style="color:#8b949e;font-size:.75rem;margin-bottom:12px;font-family:'Fira Code',monospace">Day 1 브랜치 상태</div>
+    <div class="bl"><div class="bdot bm"></div><div class="bcon bcm"></div><span class="btag btm">main</span><span class="bdesc">안정 버전 (배포용)</span></div>
+    <div class="bl bi1"><div class="bdot bd"></div><div class="bcon bcd"></div><span class="btag btd">develop</span><span class="bdesc">개발 통합</span></div>
+    <div class="bl bi2"><div class="bdot bf"></div><div class="bcon bcf"></div><span class="btag btf">feature/api-routes</span><span class="bdesc">민수 작업 중</span></div>
+    <div class="bl bi2"><div class="bdot bf"></div><div class="bcon bcf"></div><span class="btag btf">feature/openai-api</span><span class="bdesc">지연 작업 중</span></div>
+    <div class="bl bi2"><div class="bdot bf"></div><div class="bcon bcf"></div><span class="btag btf">feature/chat-ui</span><span class="bdesc">현우 작업 중</span></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--           DAY 1: 민수 - API Routes                          -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="person-tag p-leader">👑 민수 — feature/api-routes</div>
+  <h3>Flask 라우트 기본 구조 작업</h3>
+
+  <pre><code><span class="cm"># develop에서 새 브랜치 생성</span>
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/api-routes</code></pre>
+
+  <h4>app.py 수정</h4>
+  <pre><code><span class="kw">from</span> flask <span class="kw">import</span> Flask, render_template, request, jsonify
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+
+<span class="fn">@app.route</span>(<span class="str">"/"</span>)
+<span class="kw">def</span> <span class="fn">index</span>():
+    <span class="kw">return</span> render_template(<span class="str">"index.html"</span>)
+
+<span class="fn">@app.route</span>(<span class="str">"/chat"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">chat</span>():
+    user_message = request.json.get(<span class="str">"message"</span>)
+    <span class="cm"># TODO: OpenAI API 호출 (지연이 구현 예정)</span>
+    reply = <span class="str">"아직 AI 연결 전입니다"</span>
+    <span class="kw">return</span> jsonify({<span class="str">"reply"</span>: reply})
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    app.run(debug=<span class="var">True</span>)</code></pre>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div>지연이 아직 OpenAI 연동을 안 만들었으므로, 임시 응답을 넣어둡니다. 이게 <strong>브랜치 작업의 핵심</strong>이에요 — 다른 사람의 작업이 끝나지 않아도 <strong>내 부분을 먼저 만들 수 있습니다</strong>.</div>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit">
+      <div class="tl-label">Commit</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> app.py
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: 메인 페이지 및 /chat 라우트 추가"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push">
+      <div class="tl-label">Push</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/api-routes</code></pre>
+    </div>
+    <div class="tl-item tl-pr">
+      <div class="tl-label">PR 생성</div>
+      <div style="font-size:.88rem">GitHub에서 PR 생성: <code>feature/api-routes</code> → <code>develop</code></div>
+    </div>
+  </div>
+
+  <!-- PR Mock -->
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>Pull Request #1</div>
+    <div class="mock-body">
+      <div style="font-size:1.05rem;font-weight:700;margin-bottom:8px">feat: 메인 페이지 및 /chat 라우트 추가</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <span class="badge bg-blue">base: develop</span>
+        <span style="color:#9ca3af">←</span>
+        <span class="badge bg-purple">feature/api-routes</span>
+      </div>
+      <div style="background:#f6f8fa;border-radius:8px;padding:12px;font-size:.85rem;margin-bottom:12px;line-height:1.7">
+        <strong>변경 사항</strong><br>
+        - GET / : 메인 페이지 렌더링<br>
+        - POST /chat : 사용자 메시지를 받아 응답 반환<br>
+        - OpenAI 연동은 TODO로 남겨둠 (지연이 작업 예정)<br><br>
+        <strong>테스트</strong><br>
+        - flask run 후 / 접속 확인 ✅<br>
+        - /chat에 POST 요청 시 임시 응답 반환 확인 ✅
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px">Reviewers: <span class="badge bg-blue">👤 지연</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- === 지연이 리뷰 === -->
+<div class="card">
+  <div class="person-tag p-a">👤 지연 — 민수의 PR 리뷰</div>
+
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>PR #1 — Files changed</div>
+    <div style="padding:14px;background:#0d1117;font-size:.8rem">
+      <div style="color:#8b949e;padding:4px 10px;font-weight:600;margin-bottom:4px;font-family:'Fira Code',monospace">app.py</div>
+      <div class="rl radd"><div class="rln">1</div><div class="rc">from flask import Flask, render_template, request, jsonify</div></div>
+      <div class="rl radd"><div class="rln">2</div><div class="rc">from dotenv import load_dotenv</div></div>
+      <div class="rl radd"><div class="rln">3</div><div class="rc"></div></div>
+      <div class="rl radd"><div class="rln">4</div><div class="rc">load_dotenv()</div></div>
+      <div class="rl radd"><div class="rln">8</div><div class="rc">@app.route("/")</div></div>
+      <div class="rl radd"><div class="rln">9</div><div class="rc">def index():</div></div>
+      <div class="rl radd"><div class="rln">10</div><div class="rc">    return render_template("index.html")</div></div>
+    </div>
+    <div style="padding:14px;background:#f6f8fa;border-top:1px solid #d0d7de">
+      <div style="background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:12px;font-size:.85rem">
+        <div style="margin-bottom:6px">깔끔하네요! /chat 라우트에 제가 OpenAI 호출 로직 붙이면 될 것 같아요 👍</div>
+        <div style="display:flex;gap:10px;font-size:.82rem;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #d0d7de"></div> Comment</label>
+          <label style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #d0d7de"></div> Request changes</label>
+          <label style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #2da44e;display:flex;align-items:center;justify-content:center"><div style="width:6px;height:6px;border-radius:50%;background:#2da44e"></div></div> <strong>Approve</strong></label>
+        </div>
+        <span class="mock-btn btn-green" style="padding:6px 14px;font-size:.8rem">Submit review</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="merge-visual">
+    <span class="mv-branch" style="background:#ede9fe;color:#5b21b6;border:2px solid #c4b5fd">feature/api-routes</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span style="font-size:1.1rem">✅ Approve</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mock-btn btn-green" style="margin:0;padding:6px 14px;font-size:.82rem">Squash and merge</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mv-branch" style="background:#dbeafe;color:#1e40af;border:2px solid #93c5fd">develop</span>
+  </div>
+
+  <div class="info-box info-tip">
+    <span class="icon">🎉</span>
+    <div><strong>첫 번째 PR 머지 완료!</strong> 이제 develop 브랜치에 Flask 라우트 코드가 반영되었습니다.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--           DAY 1~2: 지연 - OpenAI API                         -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><span>DAY</span>1~2</div>
+  <div class="day-info">
+    <h2>기능 개발 본격 시작</h2>
+    <p>민수의 라우트가 머지된 후, 지연과 현우가 각자 작업을 이어갑니다</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="person-tag p-a">👤 지연 — feature/openai-api</div>
+  <h3>OpenAI API 연동 작업</h3>
+
+  <div class="info-box info-warn">
+    <span class="icon">⚠️</span>
+    <div><strong>중요!</strong> 민수의 PR이 develop에 머지되었으므로, 작업 시작 전에 <strong>반드시 최신 develop을 받아야</strong> 합니다.</div>
+  </div>
+
+  <pre><code><span class="cm"># 1) develop 최신 코드 받기</span>
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+<span class="out"># 민수가 만든 app.py 라우트 코드가 들어옴!</span>
+
+<span class="cm"># 2) 내 브랜치 생성</span>
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/openai-api</code></pre>
+
+  <h4>신규 파일: chat_service.py</h4>
+  <pre><code><span class="kw">import</span> os
+<span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+client = OpenAI(api_key=os.getenv(<span class="str">"OPENAI_API_KEY"</span>))
+
+<span class="kw">def</span> <span class="fn">get_ai_response</span>(user_message):
+    response = client.chat.completions.create(
+        model=<span class="str">"gpt-4o-mini"</span>,
+        messages=[
+            {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"당신은 친절한 AI 도우미입니다."</span>},
+            {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: user_message}
+        ]
+    )
+    <span class="kw">return</span> response.choices[<span class="var">0</span>].message.content</code></pre>
+
+  <h4>app.py 수정 — 임시 응답을 실제 API 호출로 교체</h4>
+  <pre><code><span class="kw">from</span> chat_service <span class="kw">import</span> get_ai_response  <span class="cm"># 추가</span>
+
+<span class="fn">@app.route</span>(<span class="str">"/chat"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">chat</span>():
+    user_message = request.json.get(<span class="str">"message"</span>)
+    reply = get_ai_response(user_message)  <span class="cm"># 변경!</span>
+    <span class="kw">return</span> jsonify({<span class="str">"reply"</span>: reply})</code></pre>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit">
+      <div class="tl-label">Commit 1</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> chat_service.py
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: OpenAI API 호출 서비스 모듈 추가"</span></code></pre>
+    </div>
+    <div class="tl-item tl-commit">
+      <div class="tl-label">Commit 2</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> app.py
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: /chat 라우트에 OpenAI API 연결"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push">
+      <div class="tl-label">Push</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/openai-api</code></pre>
+    </div>
+  </div>
+
+  <div class="info-box info-note">
+    <span class="icon">📌</span>
+    <div>지연은 <strong>app.py를 수정</strong>했습니다. 다른 사람(현우)도 app.py를 수정할 수 있지만, <strong>서로 다른 부분</strong>이라면 Git이 자동으로 합쳐줍니다.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--           DAY 1~2: 현우 - Chat UI                            -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="person-tag p-b">👤 현우 — feature/chat-ui</div>
+  <h3>채팅 UI 작업 (동시 진행)</h3>
+
+  <pre><code><span class="cm"># 현우도 최신 develop을 받고 브랜치 생성</span>
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/chat-ui</code></pre>
+
+  <h4>templates/index.html</h4>
+  <pre><code><span class="cm">&lt;!DOCTYPE html&gt;</span>
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;AI ChatBot&lt;/title&gt;
+    &lt;link rel=<span class="str">"stylesheet"</span> href=<span class="str">"/static/style.css"</span>&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=<span class="str">"chat-container"</span>&gt;
+        &lt;h1&gt;AI ChatBot 🤖&lt;/h1&gt;
+        &lt;div id=<span class="str">"messages"</span>&gt;&lt;/div&gt;
+        &lt;div class=<span class="str">"input-area"</span>&gt;
+            &lt;input type=<span class="str">"text"</span> id=<span class="str">"user-input"</span>
+                   placeholder=<span class="str">"메시지를 입력하세요..."</span>&gt;
+            &lt;button onclick=<span class="str">"sendMessage()"</span>&gt;전송&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;script src=<span class="str">"/static/script.js"</span>&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h4>static/script.js</h4>
+  <pre><code><span class="kw">async function</span> <span class="fn">sendMessage</span>() {
+    <span class="kw">const</span> input = document.getElementById(<span class="str">"user-input"</span>);
+    <span class="kw">const</span> message = input.value.trim();
+    <span class="kw">if</span> (!message) <span class="kw">return</span>;
+
+    addMessage(<span class="str">"You"</span>, message);
+    input.value = <span class="str">""</span>;
+
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">"/chat"</span>, {
+        method: <span class="str">"POST"</span>,
+        headers: {<span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>},
+        body: JSON.stringify({ message })
+    });
+    <span class="kw">const</span> data = <span class="kw">await</span> res.json();
+    addMessage(<span class="str">"Bot"</span>, data.reply);
+}
+
+<span class="kw">function</span> <span class="fn">addMessage</span>(sender, text) {
+    <span class="kw">const</span> div = document.createElement(<span class="str">"div"</span>);
+    div.className = <span class="str">`message </span><span class="var">${sender.toLowerCase()}</span><span class="str">`</span>;
+    div.innerHTML = <span class="str">`&lt;strong&gt;</span><span class="var">${sender}</span><span class="str">:&lt;/strong&gt; </span><span class="var">${text}</span><span class="str">`</span>;
+    document.getElementById(<span class="str">"messages"</span>).appendChild(div);
+}</code></pre>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit"><div class="tl-label">Commit</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> templates/index.html static/script.js static/style.css
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: 채팅 UI 구현 (HTML/JS/CSS)"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push"><div class="tl-label">Push</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/chat-ui</code></pre>
+    </div>
+    <div class="tl-item tl-pr"><div class="tl-label">PR #2 생성</div>
+      <div style="font-size:.88rem"><code>feature/chat-ui</code> → <code>develop</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- === 현우 PR 머지 === -->
+<div class="card">
+  <h3>PR #2 리뷰 & 머지 (현우의 채팅 UI)</h3>
+  <p>민수가 리뷰 → Approve → <strong>Squash and merge</strong></p>
+
+  <div class="merge-visual">
+    <span class="mv-branch" style="background:#ede9fe;color:#5b21b6;border:2px solid #c4b5fd">feature/chat-ui</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span style="font-size:1.1rem">✅ 머지 완료</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mv-branch" style="background:#dbeafe;color:#1e40af;border:2px solid #93c5fd">develop</span>
+  </div>
+
+  <div class="info-box info-note">
+    <span class="icon">📌</span>
+    <div>현우는 <code>templates/</code>, <code>static/</code> 파일만 수정했고, 지연은 <code>app.py</code>와 <code>chat_service.py</code>를 수정했으므로 <strong>파일이 겹치지 않아 충돌 없이 머지</strong>됩니다.</div>
+  </div>
+</div>
+
+<!-- === 지연 PR 머지 === -->
+<div class="card">
+  <h3>PR #3 리뷰 & 머지 (지연의 OpenAI 연동)</h3>
+  <p>민수가 리뷰 → Approve → <strong>Squash and merge</strong></p>
+
+  <div class="merge-visual">
+    <span class="mv-branch" style="background:#ede9fe;color:#5b21b6;border:2px solid #c4b5fd">feature/openai-api</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span style="font-size:1.1rem">✅ 머지 완료</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mv-branch" style="background:#dbeafe;color:#1e40af;border:2px solid #93c5fd">develop</span>
+  </div>
+
+  <div class="diagram-box">
+    <div class="diagram-title">Day 2 끝 — develop 브랜치의 상태</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;text-align:center">
+      <div style="background:#dcfce7;border:2px solid #86efac;border-radius:10px;padding:12px;font-size:.82rem"><strong>Flask 라우트</strong><br><span style="color:#6b7280">민수 PR #1 ✅</span></div>
+      <div style="background:#dcfce7;border:2px solid #86efac;border-radius:10px;padding:12px;font-size:.82rem"><strong>채팅 UI</strong><br><span style="color:#6b7280">현우 PR #2 ✅</span></div>
+      <div style="background:#dcfce7;border:2px solid #86efac;border-radius:10px;padding:12px;font-size:.82rem"><strong>OpenAI 연동</strong><br><span style="color:#6b7280">지연 PR #3 ✅</span></div>
+      <div style="background:#f3f4f6;border:2px dashed #d1d5db;border-radius:10px;padding:12px;font-size:.82rem"><strong>대화 저장</strong><br><span style="color:#6b7280">수빈 작업 예정</span></div>
+    </div>
+    <p style="margin-top:12px;font-size:.85rem;color:#6b7280;margin-bottom:0">이 시점에서 develop을 pull하면 <strong>기본 챗봇이 동작하는 상태!</strong></p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                         DAY 3                                -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><span>DAY</span>3</div>
+  <div class="day-info">
+    <h2>기능 추가 + 충돌 발생!</h2>
+    <p>수빈이 대화 저장 기능을 추가하고, 민수도 app.py를 수정하다가 충돌이 발생합니다</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="person-tag p-c">👤 수빈 — feature/save-history</div>
+  <h3>대화 저장 기능 작업</h3>
+
+  <pre><code><span class="cm"># 최신 develop 받고 브랜치 생성</span>
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/save-history</code></pre>
+
+  <h4>신규 파일: history.py</h4>
+  <pre><code><span class="kw">import</span> json, os
+
+HISTORY_FILE = <span class="str">"chat_history.json"</span>
+
+<span class="kw">def</span> <span class="fn">save_message</span>(role, content):
+    history = load_history()
+    history.append({<span class="str">"role"</span>: role, <span class="str">"content"</span>: content})
+    <span class="kw">with</span> open(HISTORY_FILE, <span class="str">"w"</span>) <span class="kw">as</span> f:
+        json.dump(history, f, ensure_ascii=<span class="var">False</span>, indent=<span class="var">2</span>)
+
+<span class="kw">def</span> <span class="fn">load_history</span>():
+    <span class="kw">if</span> os.path.exists(HISTORY_FILE):
+        <span class="kw">with</span> open(HISTORY_FILE) <span class="kw">as</span> f:
+            <span class="kw">return</span> json.load(f)
+    <span class="kw">return</span> []</code></pre>
+
+  <h4>app.py 수정 — /chat 라우트에 저장 로직 추가</h4>
+  <pre><code><span class="kw">from</span> history <span class="kw">import</span> save_message, load_history  <span class="cm"># 추가</span>
+
+<span class="fn">@app.route</span>(<span class="str">"/chat"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">chat</span>():
+    user_message = request.json.get(<span class="str">"message"</span>)
+    save_message(<span class="str">"user"</span>, user_message)       <span class="cm"># 추가!</span>
+    reply = get_ai_response(user_message)
+    save_message(<span class="str">"assistant"</span>, reply)          <span class="cm"># 추가!</span>
+    <span class="kw">return</span> jsonify({<span class="str">"reply"</span>: reply})
+
+<span class="fn">@app.route</span>(<span class="str">"/history"</span>)                       <span class="cm"># 새 라우트!</span>
+<span class="kw">def</span> <span class="fn">get_history</span>():
+    <span class="kw">return</span> jsonify(load_history())</code></pre>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit"><div class="tl-label">Commit</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> history.py app.py
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: 대화 기록 저장 및 /history 라우트 추가"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push"><div class="tl-label">Push</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/save-history</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- === 민수도 app.py 수정 (충돌 시나리오) === -->
+<div class="card">
+  <div class="person-tag p-leader">👑 민수 — feature/error-handling</div>
+  <h3>에러 처리 추가 (같은 시간, app.py 수정)</h3>
+
+  <pre><code><span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/error-handling</code></pre>
+
+  <h4>app.py 수정 — /chat 라우트에 에러 처리 추가</h4>
+  <pre><code><span class="fn">@app.route</span>(<span class="str">"/chat"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">chat</span>():
+    user_message = request.json.get(<span class="str">"message"</span>)
+    <span class="kw">if not</span> user_message:                             <span class="cm"># 추가!</span>
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: <span class="str">"메시지가 비어있습니다"</span>}), <span class="var">400</span>
+    <span class="kw">try</span>:                                              <span class="cm"># 추가!</span>
+        reply = get_ai_response(user_message)
+        <span class="kw">return</span> jsonify({<span class="str">"reply"</span>: reply})
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:                            <span class="cm"># 추가!</span>
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: str(e)}), <span class="var">500</span></code></pre>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit"><div class="tl-label">Commit</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> app.py
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: /chat 라우트에 입력 검증 및 에러 처리 추가"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push"><div class="tl-label">Push + PR</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/error-handling</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- === 충돌 발생!! === -->
+<div class="card" style="border:2px solid #fca5a5">
+  <h3 style="border-color:#ef4444;color:#991b1b">💥 충돌 발생!</h3>
+
+  <p>수빈의 PR #4 (<code>feature/save-history</code>)가 먼저 머지되었습니다.<br>
+  그 후 민수의 PR #5 (<code>feature/error-handling</code>)를 머지하려고 하면...</p>
+
+  <div class="mock-ui" style="border-color:#fca5a5">
+    <div class="mock-tb" style="background:#fef2f2"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>PR #5 — Merge conflict</div>
+    <div class="mock-body">
+      <div style="display:flex;align-items:center;gap:8px;color:#991b1b;font-weight:700;font-size:.92rem;margin-bottom:12px">
+        ⚠️ This branch has conflicts that must be resolved
+      </div>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;font-size:.85rem;color:#991b1b">
+        <strong>Conflicting files:</strong> app.py<br>
+        두 PR 모두 <code>/chat</code> 라우트의 같은 부분을 수정했기 때문에 Git이 자동으로 합칠 수 없습니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box info-warn">
+    <span class="icon">💡</span>
+    <div><strong>왜 충돌이 났을까?</strong><br>
+    수빈은 <code>/chat</code> 함수에 <code>save_message()</code>를 추가했고,<br>
+    민수는 같은 <code>/chat</code> 함수에 <code>try/except</code>를 추가했습니다.<br>
+    <strong>같은 함수의 같은 줄</strong>을 서로 다르게 수정했으므로 충돌!</div>
+  </div>
+
+  <h3 style="border-color:#ef4444">민수가 충돌 해결하기</h3>
+
+  <pre><code><span class="cm"># 1) 내 브랜치에서 최신 develop을 합치기</span>
+<span class="cmd">git checkout</span> feature/error-handling
+<span class="cmd">git merge</span> develop
+
+<span class="kw"># CONFLICT (content): Merge conflict in app.py</span>
+<span class="kw"># Automatic merge failed</span></code></pre>
+
+  <p>app.py를 열면 이렇게 보입니다:</p>
+
+  <div class="conflict-code">
+<span style="color:#8b949e"># app.py의 /chat 라우트 부분</span>
+
+<span class="cmark"><<<<<<< HEAD (민수의 코드)</span>
+<span class="cmine">@app.route("/chat", methods=["POST"])</span>
+<span class="cmine">def chat():</span>
+<span class="cmine">    user_message = request.json.get("message")</span>
+<span class="cmine">    if not user_message:</span>
+<span class="cmine">        return jsonify({"error": "메시지가 비어있습니다"}), 400</span>
+<span class="cmine">    try:</span>
+<span class="cmine">        reply = get_ai_response(user_message)</span>
+<span class="cmine">        return jsonify({"reply": reply})</span>
+<span class="cmine">    except Exception as e:</span>
+<span class="cmine">        return jsonify({"error": str(e)}), 500</span>
+<span class="cmark">=======</span>
+<span class="ctheirs">@app.route("/chat", methods=["POST"])</span>
+<span class="ctheirs">def chat():</span>
+<span class="ctheirs">    user_message = request.json.get("message")</span>
+<span class="ctheirs">    save_message("user", user_message)</span>
+<span class="ctheirs">    reply = get_ai_response(user_message)</span>
+<span class="ctheirs">    save_message("assistant", reply)</span>
+<span class="ctheirs">    return jsonify({"reply": reply})</span>
+<span class="cmark">>>>>>>> develop (수빈의 코드가 머지된 develop)</span>
+  </div>
+
+  <h4>해결: 양쪽 코드를 합친다</h4>
+  <p>민수가 팀 채팅방에서 수빈과 상의 후, 두 기능을 모두 포함하도록 수정합니다:</p>
+
+  <pre><code><span class="fn">@app.route</span>(<span class="str">"/chat"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">chat</span>():
+    user_message = request.json.get(<span class="str">"message"</span>)
+    <span class="kw">if not</span> user_message:                           <span class="cm"># 민수의 에러 처리</span>
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: <span class="str">"메시지가 비어있습니다"</span>}), <span class="var">400</span>
+    <span class="kw">try</span>:                                            <span class="cm"># 민수의 에러 처리</span>
+        save_message(<span class="str">"user"</span>, user_message)           <span class="cm"># 수빈의 저장 기능</span>
+        reply = get_ai_response(user_message)
+        save_message(<span class="str">"assistant"</span>, reply)              <span class="cm"># 수빈의 저장 기능</span>
+        <span class="kw">return</span> jsonify({<span class="str">"reply"</span>: reply})
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:                          <span class="cm"># 민수의 에러 처리</span>
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: str(e)}), <span class="var">500</span></code></pre>
+
+  <div class="info-box info-danger">
+    <span class="icon">🚨</span>
+    <div><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> 마커를 <strong>반드시 전부 제거</strong>해야 합니다!</div>
+  </div>
+
+  <pre><code><span class="cm"># 2) 충돌 해결 후 커밋</span>
+<span class="cmd">git add</span> app.py
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"fix: app.py 충돌 해결 (에러 처리 + 대화 저장 통합)"</span>
+
+<span class="cm"># 3) 다시 push</span>
+<span class="cmd">git push</span> origin feature/error-handling</code></pre>
+
+  <p>이제 PR #5에 충돌이 사라지고, 정상적으로 머지할 수 있습니다!</p>
+
+  <div class="merge-visual">
+    <span class="mv-branch" style="background:#fef2f2;color:#991b1b;border:2px solid #fca5a5">충돌!</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mv-branch" style="background:#fff7ed;color:#9a3412;border:2px solid #fdba74">양쪽 코드 합침</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mv-branch" style="background:#dcfce7;color:#166534;border:2px solid #86efac">✅ 충돌 해결 후 머지</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                         DAY 4                                -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#10b981,#059669)"><span>DAY</span>4</div>
+  <div class="day-info">
+    <h2>마무리 작업 + 통합 테스트</h2>
+    <p>현우가 UI 개선, 수빈이 프론트에 대화 기록 표시 기능을 추가합니다</p>
+  </div>
+</div>
+
+<div class="card">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+    <span class="person-tag p-b" style="margin:0">👤 현우 — feature/ui-improvements</span>
+  </div>
+
+  <h3>UI 개선: 로딩 표시, Enter 키 전송</h3>
+  <pre><code><span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop       <span class="cm"># 모든 머지된 코드를 받음</span>
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/ui-improvements</code></pre>
+
+  <h4>static/script.js 수정 (일부)</h4>
+  <pre><code><span class="cm">// Enter 키로 전송</span>
+document.getElementById(<span class="str">"user-input"</span>)
+  .addEventListener(<span class="str">"keydown"</span>, (e) => {
+    <span class="kw">if</span> (e.key === <span class="str">"Enter"</span>) sendMessage();
+  });
+
+<span class="kw">async function</span> <span class="fn">sendMessage</span>() {
+    <span class="cm">// ... 기존 코드 ...</span>
+    addMessage(<span class="str">"Bot"</span>, <span class="str">"생각 중..."</span>);  <span class="cm">// 로딩 표시 추가</span>
+
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">"/chat"</span>, { <span class="cm">/* ... */</span> });
+    <span class="kw">const</span> data = <span class="kw">await</span> res.json();
+
+    <span class="cm">// 로딩 메시지 교체</span>
+    removeLastMessage();
+    <span class="kw">if</span> (data.error) {
+        addMessage(<span class="str">"Bot"</span>, <span class="str">"⚠️ 오류: "</span> + data.error);
+    } <span class="kw">else</span> {
+        addMessage(<span class="str">"Bot"</span>, data.reply);
+    }
+}</code></pre>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit"><div class="tl-label">Commit</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> static/script.js static/style.css
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: 로딩 표시, Enter 키 전송, 에러 메시지 표시"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push"><div class="tl-label">Push + PR #6</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/ui-improvements</code></pre>
+    </div>
+    <div class="tl-item tl-merge"><div class="tl-label">리뷰 → 머지</div>
+      <div style="font-size:.88rem">수빈이 리뷰 → Approve → 머지 완료 ✅</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="person-tag p-c">👤 수빈 — feature/show-history</div>
+  <h3>프론트에 대화 기록 불러오기</h3>
+
+  <pre><code><span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+<span class="cmd">git checkout</span> <span class="fl">-b</span> feature/show-history</code></pre>
+
+  <h4>static/script.js에 추가</h4>
+  <pre><code><span class="cm">// 페이지 로드 시 이전 대화 표시</span>
+window.addEventListener(<span class="str">"DOMContentLoaded"</span>, <span class="kw">async</span> () => {
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">"/history"</span>);
+    <span class="kw">const</span> history = <span class="kw">await</span> res.json();
+    history.forEach(msg => {
+        <span class="kw">const</span> sender = msg.role === <span class="str">"user"</span> ? <span class="str">"You"</span> : <span class="str">"Bot"</span>;
+        addMessage(sender, msg.content);
+    });
+});</code></pre>
+
+  <div class="timeline">
+    <div class="tl-item tl-commit"><div class="tl-label">Commit</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git add</span> static/script.js
+<span class="cmd">git commit</span> <span class="fl">-m</span> <span class="str">"feat: 페이지 로드 시 이전 대화 기록 표시"</span></code></pre>
+    </div>
+    <div class="tl-item tl-push"><div class="tl-label">Push + PR #7</div>
+      <pre style="margin:4px 0"><code><span class="cmd">git push</span> origin feature/show-history</code></pre>
+    </div>
+    <div class="tl-item tl-merge"><div class="tl-label">리뷰 → 머지</div>
+      <div style="font-size:.88rem">현우가 리뷰 → Approve → 머지 완료 ✅</div>
+    </div>
+  </div>
+
+  <div class="info-box info-note">
+    <span class="icon">💡</span>
+    <div>현우와 수빈 모두 <code>script.js</code>를 수정했지만, 현우의 PR이 <strong>먼저 머지</strong>된 후 수빈이 <code>git pull</code>로 최신 develop을 받고 작업을 시작했기 때문에 <strong>충돌이 발생하지 않았습니다.</strong> pull을 자주 하는 게 중요한 이유입니다!</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                         DAY 5                                -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#ec4899,#be185d)"><span>DAY</span>5</div>
+  <div class="day-info">
+    <h2>최종 테스트 + 릴리스</h2>
+    <p>develop을 테스트하고, 문제없으면 main에 합쳐서 배포합니다</p>
+  </div>
+</div>
+
+<div class="card">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+    <span class="person-tag p-leader" style="margin:0">👑 민수</span>
+    <span class="person-tag p-a" style="margin:0">👤 지연</span>
+    <span class="person-tag p-b" style="margin:0">👤 현우</span>
+    <span class="person-tag p-c" style="margin:0">👤 수빈</span>
+  </div>
+
+  <h3>Step 1. 모두 develop 최신 코드로 통합 테스트</h3>
+  <pre><code><span class="cm"># 모든 팀원이 실행</span>
+<span class="cmd">git checkout</span> develop
+<span class="cmd">git pull</span> origin develop
+
+<span class="cm"># 환경 설정</span>
+cp .env.example .env
+<span class="cm"># .env에 실제 OPENAI_API_KEY 입력</span>
+
+<span class="cm"># 실행</span>
+pip install -r requirements.txt
+python app.py</code></pre>
+
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>팀 채팅방 — 테스트 결과</div>
+    <div class="mock-body" style="font-size:.88rem;display:flex;flex-direction:column;gap:8px">
+      <div><strong style="color:#92400e">민수:</strong> 메인 페이지 로드 ✅, API 응답 ✅</div>
+      <div><strong style="color:#1e40af">지연:</strong> OpenAI 호출 정상 ✅, 빈 메시지 에러 처리 ✅</div>
+      <div><strong style="color:#5b21b6">현우:</strong> Enter 키 전송 ✅, 로딩 표시 ✅, 에러 표시 ✅</div>
+      <div><strong style="color:#166534">수빈:</strong> 대화 저장 ✅, 새로고침 후 기록 로드 ✅</div>
+      <div style="margin-top:4px"><strong style="color:#92400e">민수:</strong> 좋아요! develop → main PR 올릴게요 🎉</div>
+    </div>
+  </div>
+
+  <h3>Step 2. develop → main PR 생성 (릴리스)</h3>
+
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>Pull Request #8 — Release</div>
+    <div class="mock-body">
+      <div style="font-size:1.05rem;font-weight:700;margin-bottom:8px">release: v1.0 AI 챗봇 첫 릴리스</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <span class="badge bg-green">base: main</span>
+        <span style="color:#9ca3af">←</span>
+        <span class="badge bg-blue">develop</span>
+      </div>
+      <div style="background:#f6f8fa;border-radius:8px;padding:12px;font-size:.85rem;line-height:1.8">
+        <strong>v1.0 포함 기능</strong><br>
+        ✅ Flask 서버 + 라우팅 (민수, PR #1)<br>
+        ✅ 채팅 UI (현우, PR #2, #6)<br>
+        ✅ OpenAI API 연동 (지연, PR #3)<br>
+        ✅ 대화 기록 저장/로드 (수빈, PR #4, #7)<br>
+        ✅ 에러 처리 (민수, PR #5)<br><br>
+        <strong>테스트</strong><br>
+        - 4명 전원 로컬 통합 테스트 완료
+      </div>
+    </div>
+  </div>
+
+  <p>팀원 1명 이상 Approve 후 머지합니다.</p>
+
+  <div class="merge-visual">
+    <span class="mv-branch" style="background:#dbeafe;color:#1e40af;border:2px solid #93c5fd">develop</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span style="font-size:1rem;font-weight:700">✅ 전원 Approve</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mock-btn btn-green" style="margin:0;padding:6px 14px;font-size:.82rem">Merge</span>
+    <span style="font-size:1.4rem;color:#9ca3af">→</span>
+    <span class="mv-branch" style="background:#dcfce7;color:#166534;border:2px solid #4ade80;font-weight:800">🎉 main (v1.0)</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                       전체 요약                               -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#0f172a,#334155)">📊</div>
+  <div class="day-info">
+    <h2>5일간의 전체 흐름 요약</h2>
+  </div>
+</div>
+
+<div class="card">
+  <h3>브랜치 타임라인</h3>
+
+  <div class="branch-diagram">
+    <div style="color:#8b949e;font-size:.72rem;margin-bottom:8px;font-family:'Fira Code',monospace">전체 브랜치 흐름</div>
+    <div class="bl">
+      <div class="bdot bm"></div><div class="bcon bcm"></div>
+      <span class="btag btm">main</span>
+      <span class="bdesc">─── 초기 세팅 ──────────────────────────────── v1.0 릴리스 ✅</span>
+    </div>
+    <div class="bl bi1">
+      <div class="bdot bd"></div><div class="bcon bcd"></div>
+      <span class="btag btd">develop</span>
+      <span class="bdesc">── PR#1 ── PR#2 ── PR#3 ── PR#4 ── PR#5 ── PR#6 ── PR#7 ──→</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bf"></div><div class="bcon bcf"></div>
+      <span class="btag btf">feature/api-routes</span>
+      <span class="bdesc">Day1 ──→ PR#1 머지 후 삭제</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bf"></div><div class="bcon bcf"></div>
+      <span class="btag btf">feature/chat-ui</span>
+      <span class="bdesc">Day1~2 ──→ PR#2 머지 후 삭제</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bf"></div><div class="bcon bcf"></div>
+      <span class="btag btf">feature/openai-api</span>
+      <span class="bdesc">Day1~2 ──→ PR#3 머지 후 삭제</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bf"></div><div class="bcon bcf"></div>
+      <span class="btag btf">feature/save-history</span>
+      <span class="bdesc">Day3 ──→ PR#4 머지 후 삭제</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bfr"></div><div class="bcon bcfr"></div>
+      <span class="btag btfr">feature/error-handling</span>
+      <span class="bdesc">Day3 ──→ 충돌 해결 ──→ PR#5 머지 후 삭제</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bf"></div><div class="bcon bcf"></div>
+      <span class="btag btf">feature/ui-improvements</span>
+      <span class="bdesc">Day4 ──→ PR#6 머지 후 삭제</span>
+    </div>
+    <div class="bl bi2">
+      <div class="bdot bf"></div><div class="bcon bcf"></div>
+      <span class="btag btf">feature/show-history</span>
+      <span class="bdesc">Day4 ──→ PR#7 머지 후 삭제</span>
+    </div>
+  </div>
+
+  <h3>PR 전체 목록</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>PR 제목</th><th>작성자</th><th>리뷰어</th><th>충돌</th><th>Day</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge bg-green">#1</span></td><td>메인 페이지 및 /chat 라우트 추가</td><td>민수</td><td>지연</td><td>없음</td><td>1</td></tr>
+        <tr><td><span class="badge bg-green">#2</span></td><td>채팅 UI 구현</td><td>현우</td><td>민수</td><td>없음</td><td>2</td></tr>
+        <tr><td><span class="badge bg-green">#3</span></td><td>OpenAI API 연결</td><td>지연</td><td>민수</td><td>없음</td><td>2</td></tr>
+        <tr><td><span class="badge bg-green">#4</span></td><td>대화 기록 저장 + /history 라우트</td><td>수빈</td><td>지연</td><td>없음</td><td>3</td></tr>
+        <tr><td><span class="badge bg-red">#5</span></td><td>에러 처리 추가</td><td>민수</td><td>수빈</td><td style="color:#991b1b;font-weight:700">app.py 충돌!</td><td>3</td></tr>
+        <tr><td><span class="badge bg-green">#6</span></td><td>UI 개선 (로딩, Enter 키)</td><td>현우</td><td>수빈</td><td>없음</td><td>4</td></tr>
+        <tr><td><span class="badge bg-green">#7</span></td><td>대화 기록 불러오기</td><td>수빈</td><td>현우</td><td>없음</td><td>4</td></tr>
+        <tr><td><span class="badge bg-blue">#8</span></td><td>v1.0 릴리스 (develop → main)</td><td>민수</td><td>전원</td><td>없음</td><td>5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>핵심 포인트 정리</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:6px">🔀</div>
+      <div style="font-weight:700;font-size:.92rem;margin-bottom:4px">브랜치 = 작업 단위</div>
+      <div style="font-size:.82rem;color:#6b7280">한 사람이 여러 브랜치를 만듦<br>작업 끝나면 머지 후 삭제</div>
+    </div>
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:6px">🔄</div>
+      <div style="font-weight:700;font-size:.92rem;margin-bottom:4px">Pull을 자주!</div>
+      <div style="font-size:.82rem;color:#6b7280">작업 시작 전 반드시 pull<br>충돌을 미리 예방</div>
+    </div>
+    <div style="background:#fefce8;border:1px solid #fef08a;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:6px">📦</div>
+      <div style="font-weight:700;font-size:.92rem;margin-bottom:4px">작게, 자주 PR</div>
+      <div style="font-size:.82rem;color:#6b7280">5일간 8개의 작은 PR<br>큰 덩어리는 충돌 폭탄</div>
+    </div>
+    <div style="background:#fdf2f8;border:1px solid #fbcfe8;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:6px">💬</div>
+      <div style="font-weight:700;font-size:.92rem;margin-bottom:4px">소통이 핵심</div>
+      <div style="font-size:.82rem;color:#6b7280">충돌 시 상의해서 해결<br>작업 시작 전 공유</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 최종 코드 전체 === -->
+<div class="card">
+  <h3>최종 완성 코드 (모든 PR 머지 후)</h3>
+
+  <div class="ftree" style="margin-bottom:16px">
+<span class="ff">ai-chatbot/</span>
+├── <span class="fi">app.py</span>              <span class="fcc"># 민수 + 지연 + 수빈 (라우트 + API + 저장 + 에러처리)</span>
+├── <span class="fi">chat_service.py</span>     <span class="fcc"># 지연 (OpenAI API 호출)</span>
+├── <span class="fi">history.py</span>          <span class="fcc"># 수빈 (대화 저장/로드)</span>
+├── <span class="fi">requirements.txt</span>    <span class="fcc"># 민수 (초기 세팅)</span>
+├── <span class="fi">.env.example</span>        <span class="fcc"># 민수 (초기 세팅)</span>
+├── <span class="fi">.gitignore</span>
+├── <span class="ff">templates/</span>
+│   └── <span class="fi">index.html</span>      <span class="fcc"># 현우 (채팅 UI)</span>
+└── <span class="ff">static/</span>
+    ├── <span class="fi">style.css</span>       <span class="fcc"># 현우 (스타일)</span>
+    └── <span class="fi">script.js</span>       <span class="fcc"># 현우 + 수빈 (UI + 기록 로드)</span>
+  </div>
+
+  <h4>최종 app.py</h4>
+  <pre><code><span class="kw">from</span> flask <span class="kw">import</span> Flask, render_template, request, jsonify
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+<span class="kw">from</span> chat_service <span class="kw">import</span> get_ai_response
+<span class="kw">from</span> history <span class="kw">import</span> save_message, load_history
+
+load_dotenv()
+app = Flask(__name__)
+
+<span class="fn">@app.route</span>(<span class="str">"/"</span>)
+<span class="kw">def</span> <span class="fn">index</span>():
+    <span class="kw">return</span> render_template(<span class="str">"index.html"</span>)
+
+<span class="fn">@app.route</span>(<span class="str">"/chat"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">chat</span>():
+    user_message = request.json.get(<span class="str">"message"</span>)
+    <span class="kw">if not</span> user_message:
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: <span class="str">"메시지가 비어있습니다"</span>}), <span class="var">400</span>
+    <span class="kw">try</span>:
+        save_message(<span class="str">"user"</span>, user_message)
+        reply = get_ai_response(user_message)
+        save_message(<span class="str">"assistant"</span>, reply)
+        <span class="kw">return</span> jsonify({<span class="str">"reply"</span>: reply})
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: str(e)}), <span class="var">500</span>
+
+<span class="fn">@app.route</span>(<span class="str">"/history"</span>)
+<span class="kw">def</span> <span class="fn">get_history</span>():
+    <span class="kw">return</span> jsonify(load_history())
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    app.run(debug=<span class="var">True</span>)</code></pre>
+
+  <div class="info-box info-tip">
+    <span class="icon">👀</span>
+    <div>최종 <code>app.py</code>를 보면, <strong>4명의 코드가 자연스럽게 하나로 합쳐져 있습니다.</strong><br>
+    이것이 Git 협업의 결과물입니다. 각자 다른 시간에 다른 브랜치에서 작업했지만, PR과 머지를 통해 하나의 완성된 코드가 되었습니다.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                  BONUS: AI 시대 협업 전략                     -->
+<!-- ============================================================ -->
+<div class="day-header">
+  <div class="day-num" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"><span>BONUS</span>🤖</div>
+  <div class="day-info">
+    <h2>Claude Code 시대의 팀 협업 전략</h2>
+    <p>AI로 개발 속도가 빨라진 만큼, 충돌 관리 전략이 더 중요해집니다</p>
+  </div>
+</div>
+
+<div class="card" style="border:2px solid #c4b5fd">
+  <h3 style="border-color:#7c3aed">문제: AI 개발은 왜 충돌이 더 많아지나?</h3>
+
+  <div class="compare-grid">
+    <div class="compare-card" style="background:#f5f3ff;border:2px solid #c4b5fd">
+      <div class="compare-icon">🐢</div>
+      <div style="font-weight:700;margin-bottom:8px;font-size:.95rem">사람이 직접 코딩</div>
+      <div style="font-size:.85rem;color:#6b7280;line-height:1.6;text-align:left">
+        하루에 PR 1개 정도<br>
+        변경량이 적어서 충돌도 적음<br>
+        수동으로 조율 가능
+      </div>
+    </div>
+    <div class="compare-card" style="background:#fef2f2;border:2px solid #fca5a5">
+      <div class="compare-icon">⚡</div>
+      <div style="font-weight:700;margin-bottom:8px;font-size:.95rem">Claude Code로 코딩</div>
+      <div style="font-size:.85rem;color:#6b7280;line-height:1.6;text-align:left">
+        하루에 PR 5~10개 가능<br>
+        대량의 코드가 빠르게 생성<br>
+        <strong style="color:#991b1b">충돌 확률 급증!</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box info-warn">
+    <span class="icon">💡</span>
+    <div><strong>핵심 인사이트:</strong> AI 시대에는 코드 작성이 병목이 아니라, <strong>코드 머지가 병목</strong>입니다. 전략 없이 7명이 동시에 Claude Code를 돌리면 충돌 해결에 더 많은 시간을 쓰게 됩니다.</div>
+  </div>
+</div>
+
+<!-- === 원칙 1: 파일 경계 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">원칙 1. "파일이 안 겹치면 충돌은 안 난다"</h3>
+  <p>작업을 나눌 때 <strong>"기능"이 아니라 "어떤 파일을 건드리는지"</strong>까지 명시해야 합니다.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card compare-bad">
+      <div class="compare-icon">❌</div>
+      <div style="font-weight:700;margin-bottom:8px;color:#991b1b">기능만 나눈 경우</div>
+      <div style="font-size:.85rem;text-align:left;line-height:1.7;color:#374151">
+        민수: 로그인 기능<br>
+        지연: 회원가입 기능<br><br>
+        → 둘 다 <code>app.py</code>, <code>user_service.py</code> 수정<br>
+        → <strong style="color:#991b1b">충돌!</strong>
+      </div>
+    </div>
+    <div class="compare-card compare-good">
+      <div class="compare-icon">✅</div>
+      <div style="font-weight:700;margin-bottom:8px;color:#166534">파일 경계까지 나눈 경우</div>
+      <div style="font-size:.85rem;text-align:left;line-height:1.7;color:#374151">
+        민수: 로그인 → <code>auth/login.py</code><br>
+        지연: 회원가입 → <code>auth/register.py</code><br><br>
+        → 파일이 안 겹침<br>
+        → <strong style="color:#166534">충돌 없음!</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === 원칙 2: 프로젝트 구조 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">원칙 2. 충돌이 안 나는 프로젝트 구조로 설계</h3>
+  <p>TASK.md를 잘 나누려면, 그 전에 <strong>프로젝트 구조 자체를 충돌이 안 나게</strong> 설계해야 합니다.</p>
+
+  <div class="compare-grid">
+    <div style="border-radius:12px;overflow:hidden;border:2px solid #fca5a5">
+      <div style="background:#fef2f2;padding:12px 16px;font-weight:700;font-size:.88rem;color:#991b1b;text-align:center">❌ 나쁜 구조 — 모든 게 하나에</div>
+      <div class="ftree" style="border-radius:0;border:none;margin:0">
+<span class="ff">project/</span>
+├── <span class="fi">app.py</span>          <span class="fcc"># ← 7명 전원이 수정</span>
+├── <span class="fi">service.py</span>      <span class="fcc"># ← 다들 건드림</span>
+├── <span class="fi">models.py</span>       <span class="fcc"># ← 다들 건드림</span>
+└── <span class="fi">utils.py</span>        <span class="fcc"># ← 다들 건드림</span>
+<span class="fcc">
+→ 충돌 지옥 🔥</span>
+      </div>
+    </div>
+    <div style="border-radius:12px;overflow:hidden;border:2px solid #86efac">
+      <div style="background:#ecfdf5;padding:12px 16px;font-weight:700;font-size:.88rem;color:#166534;text-align:center">✅ 좋은 구조 — 기능별 파일 분리</div>
+      <div class="ftree" style="border-radius:0;border:none;margin:0">
+<span class="ff">project/</span>
+├── <span class="fi">app.py</span>               <span class="fcc"># import만 (거의 안 건드림)</span>
+├── <span class="ff">routes/</span>
+│   ├── <span class="fi">chat.py</span>          <span class="fcc"># ← 민수만</span>
+│   ├── <span class="fi">auth.py</span>          <span class="fcc"># ← 수빈만</span>
+│   └── <span class="fi">admin.py</span>         <span class="fcc"># ← 지연만</span>
+├── <span class="ff">services/</span>
+│   ├── <span class="fi">openai_svc.py</span>   <span class="fcc"># ← 지연만</span>
+│   └── <span class="fi">user_svc.py</span>     <span class="fcc"># ← 수빈만</span>
+├── <span class="ff">models/</span>
+│   ├── <span class="fi">user.py</span>          <span class="fcc"># ← 민수만</span>
+│   └── <span class="fi">chat.py</span>          <span class="fcc"># ← 민수만</span>
+└── <span class="ff">templates/</span>
+    ├── <span class="fi">chat.html</span>        <span class="fcc"># ← 현우만</span>
+    └── <span class="fi">login.html</span>       <span class="fcc"># ← 수빈만</span>
+<span class="fcc">
+→ 각자 자기 파일만 수정! 충돌 0 ✨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div><strong>팁:</strong> Claude Code에게 프로젝트 초기 구조를 만들어달라고 할 때, <strong>"7명이 동시에 작업할 수 있게 기능별로 파일을 분리해줘"</strong>라고 요청하세요.</div>
+  </div>
+</div>
+
+<!-- === TASK.md 구조 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">실전 TASK.md 작성법</h3>
+  <p>Phase를 나누어 <strong>같은 Phase 안에서는 파일이 겹치지 않게</strong> 배치합니다.</p>
+
+  <div class="mock-ui" style="border-color:#c4b5fd">
+    <div class="mock-tb" style="background:#f5f3ff"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>TASK.md</div>
+    <div class="mock-body" style="padding:0">
+
+      <!-- Phase 1 -->
+      <div style="border-bottom:2px solid #e5e7eb">
+        <div style="background:linear-gradient(135deg,#ecfdf5,#f0fdf4);padding:14px 20px;display:flex;align-items:center;gap:10px">
+          <span class="badge bg-green" style="font-size:.8rem;padding:4px 12px">Phase 1</span>
+          <strong style="font-size:.92rem">독립 모듈 개발</strong>
+          <span style="font-size:.78rem;color:#6b7280;margin-left:auto">동시 진행 가능 ✅</span>
+        </div>
+        <div style="padding:16px 20px;font-size:.88rem;line-height:1.9">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-leader" style="margin:0;padding:4px 10px;font-size:.75rem">민수</span><strong>DB 모델 정의</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #fde68a">
+                파일: <code>models/user.py</code>, <code>models/chat.py</code><br>
+                브랜치: <code>feature/db-models</code>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-a" style="margin:0;padding:4px 10px;font-size:.75rem">지연</span><strong>OpenAI 서비스</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #93c5fd">
+                파일: <code>services/openai_svc.py</code><br>
+                브랜치: <code>feature/openai-service</code>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-b" style="margin:0;padding:4px 10px;font-size:.75rem">현우</span><strong>채팅 UI</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #c4b5fd">
+                파일: <code>templates/chat.html</code>, <code>static/chat.js</code>, <code>static/chat.css</code><br>
+                브랜치: <code>feature/chat-ui</code>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-c" style="margin:0;padding:4px 10px;font-size:.75rem">수빈</span><strong>인증 UI</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #86efac">
+                파일: <code>templates/login.html</code>, <code>static/auth.js</code>, <code>static/auth.css</code><br>
+                브랜치: <code>feature/auth-ui</code>
+              </div>
+            </div>
+          </div>
+          <div class="info-box info-tip" style="margin-top:12px;margin-bottom:0">
+            <span class="icon">✅</span>
+            <div><strong>파일이 하나도 겹치지 않음</strong> → 4명 동시 작업 → 충돌 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div style="border-bottom:2px solid #e5e7eb">
+        <div style="background:linear-gradient(135deg,#eff6ff,#f0f4ff);padding:14px 20px;display:flex;align-items:center;gap:10px">
+          <span class="badge bg-blue" style="font-size:.8rem;padding:4px 12px">Phase 2</span>
+          <strong style="font-size:.92rem">모듈 연결 (조립)</strong>
+          <span style="font-size:.78rem;color:#6b7280;margin-left:auto">Phase 1 머지 후 시작</span>
+        </div>
+        <div style="padding:16px 20px;font-size:.88rem;line-height:1.9">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-leader" style="margin:0;padding:4px 10px;font-size:.75rem">민수</span><strong>채팅 라우트 연결</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #fde68a">
+                파일: <code>routes/chat.py</code><br>
+                의존: 지연의 OpenAI + 민수의 DB 모델
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-c" style="margin:0;padding:4px 10px;font-size:.75rem">수빈</span><strong>인증 라우트 연결</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #86efac">
+                파일: <code>routes/auth.py</code>, <code>middleware/auth.py</code><br>
+                의존: 민수의 DB 모델
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-a" style="margin:0;padding:4px 10px;font-size:.75rem">지연</span><strong>대화 기록 서비스</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #93c5fd">
+                파일: <code>services/history_svc.py</code><br>
+                의존: 민수의 DB 모델
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="person-tag p-b" style="margin:0;padding:4px 10px;font-size:.75rem">현우</span><strong>프론트-백엔드 연결</strong></div>
+              <div style="font-size:.8rem;color:#6b7280;padding-left:8px;border-left:2px solid #c4b5fd">
+                파일: <code>static/chat.js</code> (API 호출 추가)<br>
+                의존: 민수의 라우트
+              </div>
+            </div>
+          </div>
+          <div class="info-box info-note" style="margin-top:12px;margin-bottom:0">
+            <span class="icon">📌</span>
+            <div>Phase 2도 <strong>파일이 겹치지 않게</strong> 배치. 다만 Phase 1의 코드에 의존하므로 Phase 1 머지 후 진행.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div>
+        <div style="background:linear-gradient(135deg,#fdf2f8,#fce7f3);padding:14px 20px;display:flex;align-items:center;gap:10px">
+          <span class="badge bg-red" style="font-size:.8rem;padding:4px 12px">Phase 3</span>
+          <strong style="font-size:.92rem">app.py 연결 + 통합</strong>
+          <span style="font-size:.78rem;color:#6b7280;margin-left:auto">직렬 처리 (한 명씩)</span>
+        </div>
+        <div style="padding:16px 20px;font-size:.88rem;line-height:1.9">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="background:#ef4444;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0">1</span>
+              <span class="person-tag p-leader" style="margin:0;padding:4px 10px;font-size:.75rem">민수</span>
+              <span>app.py에 라우트 import 등록 → PR → 머지</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="background:#ef4444;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0">2</span>
+              <span class="person-tag p-c" style="margin:0;padding:4px 10px;font-size:.75rem">수빈</span>
+              <span>pull → app.py에 인증 미들웨어 등록 → PR → 머지</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="background:#ef4444;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0">3</span>
+              <span class="person-tag p-a" style="margin:0;padding:4px 10px;font-size:.75rem">지연</span>
+              <span>pull → requirements.txt 업데이트 → PR → 머지</span>
+            </div>
+          </div>
+          <div class="info-box info-danger" style="margin-top:12px;margin-bottom:0">
+            <span class="icon">⚠️</span>
+            <div><strong>공통 파일(app.py 등)은 한 명씩 순서대로!</strong> 동시에 수정하면 반드시 충돌납니다.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- === 전체 워크플로우 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">Claude Code + 7인 팀 워크플로우</h3>
+
+  <div class="diagram-box" style="border-color:#c4b5fd;background:linear-gradient(135deg,#faf5ff,#f5f3ff)">
+    <div class="diagram-title">전체 개발 사이클</div>
+
+    <!-- Row 1 -->
+    <div class="flow-row">
+      <div class="flow-box" style="background:#fef3c7;color:#92400e;border:2px solid #fde68a">
+        <div style="font-size:.75rem;opacity:.7">팀장</div>
+        프로젝트 구조 설계
+        <div class="flow-cmd">폴더 분리 + TASK.md</div>
+      </div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+
+    <!-- Row 2 -->
+    <div class="flow-row">
+      <div class="flow-box" style="background:#dbeafe;color:#1e40af;border:2px solid #93c5fd">
+        <div style="font-size:.75rem;opacity:.7">팀장</div>
+        인터페이스 정의
+        <div class="flow-cmd">함수 시그니처만 작성</div>
+      </div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+
+    <!-- Row 3: Parallel -->
+    <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:14px;padding:16px;margin:8px 0">
+      <div style="text-align:center;font-size:.78rem;font-weight:700;color:#166534;margin-bottom:10px">⚡ Phase 1 — 동시 진행 (파일 경계 분리)</div>
+      <div class="flow-row" style="flex-wrap:wrap;gap:8px">
+        <div class="flow-box fc" style="min-width:80px;padding:10px 14px;font-size:.8rem">
+          <div style="font-size:.7rem;opacity:.7">민수</div>
+          DB 모델
+        </div>
+        <div class="flow-box fp" style="min-width:80px;padding:10px 14px;font-size:.8rem">
+          <div style="font-size:.7rem;opacity:.7">지연</div>
+          AI 서비스
+        </div>
+        <div class="flow-box fb" style="min-width:80px;padding:10px 14px;font-size:.8rem">
+          <div style="font-size:.7rem;opacity:.7">현우</div>
+          채팅 UI
+        </div>
+        <div class="flow-box fg" style="min-width:80px;padding:10px 14px;font-size:.8rem">
+          <div style="font-size:.7rem;opacity:.7">수빈</div>
+          인증 UI
+        </div>
+      </div>
+      <div style="text-align:center;font-size:.78rem;color:#6b7280;margin-top:6px">각자 PR → 리뷰 → 머지</div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+
+    <!-- Row 4: Parallel 2 -->
+    <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:14px;padding:16px;margin:8px 0">
+      <div style="text-align:center;font-size:.78rem;font-weight:700;color:#1e40af;margin-bottom:10px">🔗 Phase 2 — 모듈 연결 (동시 진행)</div>
+      <div class="flow-row" style="flex-wrap:wrap;gap:8px">
+        <div class="flow-box fc" style="min-width:80px;padding:10px 14px;font-size:.8rem">채팅 라우트</div>
+        <div class="flow-box fp" style="min-width:80px;padding:10px 14px;font-size:.8rem">기록 서비스</div>
+        <div class="flow-box fb" style="min-width:80px;padding:10px 14px;font-size:.8rem">API 연결</div>
+        <div class="flow-box fg" style="min-width:80px;padding:10px 14px;font-size:.8rem">인증 라우트</div>
+      </div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+
+    <!-- Row 5: Serial -->
+    <div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:14px;padding:16px;margin:8px 0">
+      <div style="text-align:center;font-size:.78rem;font-weight:700;color:#991b1b;margin-bottom:10px">🔒 Phase 3 — 공통 파일 조립 (한 명씩 순서대로)</div>
+      <div class="flow-row">
+        <div class="flow-box fr" style="padding:10px 14px;font-size:.8rem">민수<br>app.py</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box fr" style="padding:10px 14px;font-size:.8rem">수빈<br>app.py</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box fr" style="padding:10px 14px;font-size:.8rem">지연<br>requirements</div>
+      </div>
+      <div style="text-align:center;font-size:.78rem;color:#6b7280;margin-top:6px">한 명이 PR 머지 → 다음 사람 pull → 수정 → PR</div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+
+    <div class="flow-row">
+      <div class="flow-box ft" style="font-size:.9rem;padding:14px 28px">
+        🎉 통합 테스트 + 릴리스
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === 공통 파일 관리법 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">공통 파일 충돌 관리법</h3>
+  <p>아무리 잘 나눠도 모두가 건드려야 하는 파일이 있습니다:</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:14px 0">
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-family:'Fira Code',monospace;font-size:.85rem;font-weight:700;margin-bottom:4px">app.py</div>
+      <div style="font-size:.78rem;color:#991b1b">메인 진입점</div>
+    </div>
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-family:'Fira Code',monospace;font-size:.85rem;font-weight:700;margin-bottom:4px">requirements.txt</div>
+      <div style="font-size:.78rem;color:#991b1b">패키지 목록</div>
+    </div>
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-family:'Fira Code',monospace;font-size:.85rem;font-weight:700;margin-bottom:4px">.env.example</div>
+      <div style="font-size:.78rem;color:#991b1b">환경 변수</div>
+    </div>
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-family:'Fira Code',monospace;font-size:.85rem;font-weight:700;margin-bottom:4px">config.py</div>
+      <div style="font-size:.78rem;color:#991b1b">공통 설정</div>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#f5f3ff,#eff6ff);border:2px solid #c4b5fd;border-radius:14px;padding:20px;margin:16px 0">
+    <div style="font-weight:800;font-size:.95rem;margin-bottom:14px;color:#5b21b6">📋 공통 파일 수정 프로토콜</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <span style="background:#7c3aed;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0">1</span>
+        <div>
+          <strong>팀 채팅방에 선언</strong>
+          <div style="font-size:.85rem;color:#6b7280">"app.py 수정합니다" — 다른 사람은 이 파일 수정 대기</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <span style="background:#7c3aed;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0">2</span>
+        <div>
+          <strong>빠르게 수정 → PR → 즉시 리뷰 요청</strong>
+          <div style="font-size:.85rem;color:#6b7280">공통 파일 PR은 팀에서 최우선 리뷰 — 다른 사람을 블로킹하니까</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <span style="background:#7c3aed;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0">3</span>
+        <div>
+          <strong>머지 완료 알림</strong>
+          <div style="font-size:.85rem;color:#6b7280">"app.py 머지 완료!" — 다음 사람이 pull 받고 작업 시작</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mock-ui">
+    <div class="mock-tb"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>팀 채팅방 — 공통 파일 조율 예시</div>
+    <div class="mock-body" style="font-size:.88rem;display:flex;flex-direction:column;gap:8px">
+      <div><strong style="color:#92400e">민수:</strong> 🔒 app.py 수정합니다 (채팅 라우트 등록)</div>
+      <div><strong style="color:#166534">수빈:</strong> 넵, 대기할게요</div>
+      <div style="color:#6b7280;font-size:.8rem;font-style:italic">... 10분 후 ...</div>
+      <div><strong style="color:#92400e">민수:</strong> ✅ PR #12 머지 완료! app.py 풀렸어요</div>
+      <div><strong style="color:#166534">수빈:</strong> 🔒 app.py 수정합니다 (인증 미들웨어 등록)</div>
+      <div><strong style="color:#1e40af">지연:</strong> 넵!</div>
+      <div style="color:#6b7280;font-size:.8rem;font-style:italic">... 10분 후 ...</div>
+      <div><strong style="color:#166534">수빈:</strong> ✅ PR #13 머지 완료!</div>
+      <div><strong style="color:#1e40af">지연:</strong> 🔒 requirements.txt 수정할게요</div>
+    </div>
+  </div>
+</div>
+
+<!-- === 인터페이스 먼저 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">핵심 팁: 인터페이스(함수 시그니처)를 먼저 정한다</h3>
+
+  <p>각자 모듈을 만들기 전에, <strong>"이 함수는 이런 입력을 받아서 이런 출력을 준다"</strong>를 먼저 합의하면 나중에 조립이 매끄럽습니다.</p>
+
+  <div class="mock-ui" style="border-color:#c4b5fd">
+    <div class="mock-tb" style="background:#f5f3ff"><div class="mock-dots"><div class="mock-dot dr"></div><div class="mock-dot dy"></div><div class="mock-dot dg"></div></div>interfaces.py — 팀장이 먼저 작성 (Phase 0)</div>
+    <div style="padding:16px;background:#0d1117;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.8">
+      <div style="color:#8b949e"># 지연이 구현할 함수</div>
+      <div><span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">get_ai_response</span>(<span style="color:#ffa657">user_message</span>: <span style="color:#79c0ff">str</span>) -> <span style="color:#79c0ff">str</span>:</div>
+      <div style="color:#8b949e;padding-left:20px">"""사용자 메시지를 받아 AI 응답을 반환"""</div>
+      <div style="padding-left:20px"><span style="color:#ff7b72">pass</span></div>
+      <br>
+      <div style="color:#8b949e"># 수빈이 구현할 함수</div>
+      <div><span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">save_message</span>(<span style="color:#ffa657">role</span>: <span style="color:#79c0ff">str</span>, <span style="color:#ffa657">content</span>: <span style="color:#79c0ff">str</span>) -> <span style="color:#79c0ff">None</span>:</div>
+      <div style="color:#8b949e;padding-left:20px">"""대화 메시지를 저장"""</div>
+      <div style="padding-left:20px"><span style="color:#ff7b72">pass</span></div>
+      <br>
+      <div><span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">load_history</span>() -> <span style="color:#79c0ff">list</span>[<span style="color:#79c0ff">dict</span>]:</div>
+      <div style="color:#8b949e;padding-left:20px">"""저장된 대화 기록을 반환"""</div>
+      <div style="padding-left:20px"><span style="color:#ff7b72">pass</span></div>
+      <br>
+      <div style="color:#8b949e"># 민수가 구현할 라우트</div>
+      <div style="color:#8b949e"># POST /chat  {"message": str} → {"reply": str}</div>
+      <div style="color:#8b949e"># GET  /history → [{"role": str, "content": str}]</div>
+    </div>
+  </div>
+
+  <div class="info-box info-tip">
+    <span class="icon">💡</span>
+    <div>이렇게 하면 지연은 <code>get_ai_response</code>를, 수빈은 <code>save_message</code>를 <strong>서로의 코드를 기다리지 않고</strong> 동시에 구현할 수 있습니다. 민수는 이 함수들이 완성되기 전에도 임시 응답으로 라우트를 먼저 만들 수 있고요.</div>
+  </div>
+</div>
+
+<!-- === 판단 기준 요약 === -->
+<div class="card">
+  <h3 style="border-color:#7c3aed">한눈에 보는 판단 기준</h3>
+
+  <div class="tw">
+    <table>
+      <thead style="background:linear-gradient(135deg,#5b21b6,#7c3aed)"><tr><th>상황</th><th>전략</th><th>충돌 위험</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>서로 <strong>다른 파일</strong> 수정</td>
+          <td><span class="badge bg-green">병렬</span> 동시 작업 OK</td>
+          <td style="text-align:center">🟢 없음</td>
+        </tr>
+        <tr>
+          <td>같은 파일의 <strong>다른 부분</strong></td>
+          <td><span class="badge bg-yellow">병렬 가능</span> 주의 필요</td>
+          <td style="text-align:center">🟡 낮음</td>
+        </tr>
+        <tr>
+          <td>같은 파일의 <strong>같은 부분</strong></td>
+          <td><span class="badge bg-red">직렬</span> 한 명씩 순서대로</td>
+          <td style="text-align:center">🔴 확실</td>
+        </tr>
+        <tr>
+          <td><strong>공통 파일</strong> (app.py 등)</td>
+          <td><span class="badge bg-red">직렬</span> + 팀 채팅 선언</td>
+          <td style="text-align:center">🔴 확실</td>
+        </tr>
+        <tr>
+          <td><strong>패키지 추가</strong> (requirements.txt)</td>
+          <td><span class="badge bg-red">직렬</span> 한 줄씩 빠르게</td>
+          <td style="text-align:center">🔴 확실</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:20px">
+    <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">🏗️</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">구조가 전략이다</div>
+      <div style="font-size:.8rem;color:#6b7280">파일을 잘 분리하면<br>TASK.md 나누기가 쉬워짐</div>
+    </div>
+    <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">📋</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">TASK.md에 파일 명시</div>
+      <div style="font-size:.8rem;color:#6b7280">"누가 어떤 파일을"<br>수정하는지 써두기</div>
+    </div>
+    <div style="background:#fefce8;border:2px solid #fef08a;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">🤝</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">인터페이스 먼저</div>
+      <div style="font-size:.8rem;color:#6b7280">함수 시그니처 합의 후<br>각자 구현</div>
+    </div>
+    <div style="background:#fdf2f8;border:2px solid #fbcfe8;border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">🔒</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:4px">공통 파일은 직렬</div>
+      <div style="font-size:.8rem;color:#6b7280">선언 → 수정 → 머지 →<br>다음 사람</div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="footer">
+  <p style="font-size:1.05rem;font-weight:700;color:#374151;margin-bottom:6px">이 시나리오를 팀원들과 함께 직접 따라해 보세요!</p>
+  <p>실제로 한 번 해보면 문서 열 번 읽는 것보다 빠르게 익힙니다.</p>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('progressBar').style.width=p+'%';
+  document.getElementById('backToTop').classList.toggle('visible',h.scrollTop>400);
+});
+</script>
+</body>
+</html>
